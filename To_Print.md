@@ -1,294 +1,187 @@
-## Lernhilfe zur Linearen Regression mit dem Galapagos-Datensatz
+## Lernhilfe zur Vorhersage des Fettgehalts von Fleisch anhand von Absorbanzspektren
 
 ### 1. Beschreibung der Daten
 
-Der Datensatz enthält Informationen über 30 Galapagos-Inseln.  Es gibt sechs Variablen:
+Der Datensatz enthält 215 Beobachtungen mit 101 Variablen. Die Variablen sind:
 
-*   **Species:** Die Anzahl der auf der Insel gefundenen Arten.
-*   **Area:** Die Fläche der Insel (km²).
-*   **Elevation:** Die höchste Erhebung der Insel (m).
-*   **Nearest:** Die Entfernung zur nächsten Insel (km).
-*   **Scruz:** Die Entfernung zur Insel Santa Cruz (km).
-*   **Adjacent:** Die Fläche der benachbarten Insel (km²).
+*   Fettgehalt
+*   100-Kanal-Absorbanzspektrum
 
-### 2. Laden von Paketen und Daten
+### 2. Pakete und Daten laden
 
 ```python
-import pandas as pd 
-import numpy as np 
-import matplotlib.pyplot as plt 
-import scipy as sp 
-import statsmodels.api as sm 
-import statsmodels.formula.api as smf 
-import seaborn as sns 
-import faraway.utils 
-np.set_printoptions(suppress=True)
+import pandas as pd
+import numpy as np
+import scipy as sp
+import matplotlib.pyplot as plt
 
-import faraway.datasets.galapagos 
-galapagos = faraway.datasets.galapagos.load() 
-galapagos.head(3)
-print("Area: km², Elevation: m, Nearest: km, Scruz: km, Adjacent: km²") 
-galapagos.describe().iloc[1:,:].round(3)
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+import faraway.utils
+import faraway.datasets.meatspec
+
+meatspec = faraway.datasets.meatspec.load()
+meatspec.head()
+meatspec.describe().round(1)
 ```
 
 ### 3. Lineare Regression
 
-```python
-lmod = smf.ols(formula='Species ~ Area + Elevation + Nearest + Scruz  + Adjacent', data=galapagos).fit() 
-lmod.summary()
-### Kürzere Version der Zusammenfassung aus dem Paket faraway
-lmod.sumary()
-```
+*   Um die Leistung eines Modells zu beurteilen, muss es an neuen Daten getestet werden. Daher wird der Datensatz in zwei Teile aufgeteilt: eine Trainingsstichprobe mit den ersten 172 Beobachtungen zum Erstellen der Modelle und eine Teststichprobe mit den restlichen 43 Beobachtungen zur Bewertung. Die Teststichprobe wird nur zur Bewertung verwendet, nicht zur Modellauswahl.
+*   Ein guter Ansatz ist es, mit einem linearen Modell zu beginnen, das alle Prädiktoren verwendet. Die `LinearRegression`-Funktion aus dem Modul `linear_model` in scikit-learn wird verwendet. Obwohl sie weniger Funktionen als statsmodels hat, lässt sie sich gut in andere scikit-learn-Funktionen integrieren, was sie bequemer macht. Der Score der Funktion ist der R$^2$-Wert.
+*   Die Anpassung des Modells ist in Bezug auf R$^2$ sehr gut. Um die Vorhersageleistung der Teststichprobe zu bewerten, wird der Root Mean Square Error (RMSE) verwendet:
+    $$ \sqrt{ \sum_{i=1}^n {(\hat{y}_i - y_i)}^2 / n } $$
+*   RMSE wird gegenüber MSE bevorzugt, da RMSE in den gleichen Einheiten wie die Antwortvariable vorliegt, was die Interpretation erleichtert.
+*   Die Leistung der Teststichprobe ist viel schlechter, was häufig vorkommt. Die Anpassung des Modells an die Trainingsdaten überschätzt oft die zukünftige Leistung. Hier ist der tatsächliche Fehler etwa fünfmal höher als vom Modell angegeben.
+*   Es ist unwahrscheinlich, dass alle 100 Prädiktoren für eine gute Vorhersage notwendig sind. Eine Untersuchung der Prädiktoren zeigt, dass benachbarte Frequenzen hoch korreliert sind, was darauf hindeutet, dass viele möglicherweise unnötig sind. Die rekursive Merkmalseliminierung mit Kreuzvalidierung wird verwendet, um die Anzahl der Prädiktoren auszuwählen.
+
+### 4. Rekursive Merkmalseliminierung
+
+*   RFECV mit Kreuzvalidierung wird angewendet, um die beste Merkmalsuntergruppe zu finden.
+*   RFECV() hat folgende Parameter:
+    *   `redreg` ist das lineare Regressionsmodell, das für die Anpassung verwendet wird.
+    *   `step=1` bedeutet, dass in jedem Schritt ein Merkmal entfernt wird.
+    *   `cv=10` bedeutet, dass eine 10-fache Kreuzvalidierung durchgeführt wird, um die Leistung des Modells zu bewerten.
+*   `selector.support_` ist ein boolesches Array, das angibt, welche Merkmale ausgewählt wurden.
+*   Die Modellauswahl hat 81 Variablen entfernt. Während sich die nominale Anpassung leicht verschlechterte, verbesserte sich die tatsächliche Leistung von 3,86 auf 2,52.
+
+### 5. Hauptkomponentenanalyse
+
+*   Die PCA kann als eine bestimmte Rotation der Daten verstanden werden. Die Daten sollen um ihren Mittelwert gedreht werden. Zu diesem Zweck wird die Matrix der Prädiktoren $\mathbf{X}$ zentriert, indem der Mittelwert für jede Variable subtrahiert wird, so dass die Spalten von X den Mittelwert Null haben. Es wird ein $\mathbf{X}$ verwendet, das keine Spalte mit Einsen für einen Intercept-Term enthält. Die PC-Zerlegung kann wie folgt berechnet werden:
+    *   Finden Sie $u_1$ so, dass $var(\mathbf{X} u_1)$ maximiert wird, vorbehaltlich $||u_1|| = u_1^T u_1 = 1$.
+    *   Finden Sie $u_2$ so, dass $var(\mathbf{X} u_2)$ maximiert wird, vorbehaltlich $||u_2|| = 1$ und $u_2^T u_1 = 0$.
+    *   Setzen Sie diesen Prozess fort, um $u_3$, $u_4$, $\ldots$ zu finden.
+*   Die Hauptkomponenten $z_i = \mathbf{X} u_i$ sind unkorreliert. Die erste Hauptkomponente hat die größte Varianz. Sie ist die Linearkombination der Prädiktoren, die die meiste Varianz in den Daten erklärt.
+*   Die Terme werden in der Matrixform $\mathbf{Z} = \mathbf{X} \mathbf{U}$ zusammengefasst, wobei $\mathbf{U}$ und $\mathbf{Z}$ die Spalten $u_i$ bzw. $z_i$ haben. $\mathbf{U}$ wird als Rotationsmatrix bezeichnet. $\mathbf{Z}$ ist eine Version der Daten, die auf Orthogonalität gedreht wurde.
+*   `pca.explained_variance_` enthält die Varianz jeder PC mit ihren Scores.
+*   Die erste Hauptkomponente (PC) erklärt etwa zehnmal mehr Variation als die zweite, wobei die Beiträge danach stark abnehmen. Dies zeigt, dass der Großteil der Variation in den Prädiktoren mit nur wenigen Dimensionen erfasst werden kann.
+*   Das Attribut `components_` des angepassten PCA-Objekts wird verwendet, um die Linearkombinationen (oder Loadings) anzuzeigen.
+*   Diese Vektoren stellen die Linearkombinationen von Prädiktoren dar, die die PCs erzeugen:
+    *   Der erste PC ist eine fast konstante Kombination von Frequenzen, die misst, ob die Prädiktoren im Allgemeinen groß oder klein sind.
+    *   Der zweite PC stellt höhere und niedrigere Frequenzen gegenüber.
+    *   Der dritte PC ist schwieriger zu interpretieren.
+*   Manchmal, wie in diesem Beispiel, können PCs intuitiv interpretiert werden, aber manchmal muss man sich mit einer verbesserten Vorhersage ohne klare Interpretation zufrieden geben.
+*   Die ersten vier PCs werden verwendet, um die Antwort vorherzusagen.
+*   `pca.fit_transform(Xtrain)` passt PCA an Xtrain an, um PCs zu erhalten. Dann transformiert es Xtrain in eine Score-Matrix (Matrix der PCs als Spalten).
+*   Obwohl man mit nur vier Variablen im Vergleich zu 100 keine so gute Anpassung erwartet, ist die Anpassung immer noch mit viel größeren Modellen vergleichbar.
+*   PCR ist eine Art der Schrumpfungsschätzung. Um den Begriff zu verstehen, werden die 100 Steigungskoeffizienten aus der vollständigen Kleinste-Quadrate-Anpassung dargestellt.
+*   Die Koeffizienten reichen bis in die Tausende, und benachbarte Koeffizienten können sich erheblich unterscheiden. Dies ist überraschend, da man erwarten könnte, dass benachbarte Frequenzen ähnliche Auswirkungen auf die Antwort haben.
+*   Die Koeffizienten aus dem Vier-Komponenten-Modell werden dargestellt.
+    *   Die Auswirkungen der ursprünglichen Merkmale werden durch PC-Loadings und Regressionskoeffizienten berechnet.
+    *   `pca.components_[:4,]` ist die Matrix der Größe 100 x 4. Dies sind die Loadings der ersten vier PCs.
+    *   `pca.components_[:4,] %*% pc4reg.coef_` sind die Auswirkungen der ursprünglichen Merkmale.
+*   Der Bereich dieser Koeffizienten ist viel kleiner als die Tausende, die bei der gewöhnlichen Kleinste-Quadrate-Anpassung beobachtet wurden, was zu stabileren Koeffizienten führt. Dieser Effekt wird als Schrumpfung bezeichnet.
+*   Zusätzlich gibt es eine Glätte zwischen benachbarten Frequenzen, was mit dem wissenschaftlichen Verständnis der Daten übereinstimmt. Die Vorhersage verwendet hauptsächlich die untere Hälfte der Frequenzen.
+
+### 6. Partial Least Squares (PLS)
+
+**Partial Least Squares (PLS) ist eine Technik, die verwendet wird, um einen Satz von Input-Variablen  $X_1, ..., X_m$ mit einem Satz von Output-Variablen $Y_1, ..., Y_z$ in Beziehung zu setzen.** Die PLS-Regression ähnelt der PCR insofern, als beide Methoden Antworten mithilfe von Linearkombinationen der Prädiktoren vorhersagen. Der **wesentliche Unterschied besteht jedoch darin, dass die PCR diese Kombinationen bestimmt, ohne die Output-Variablen *Y* zu berücksichtigen, während die PLS-Regression sie explizit auswählt, um die Vorhersage von *Y* zu optimieren**.
+
+Dieser Abschnitt konzentriert sich auf die univariate PLS, bei der z = 1 ist und Y ein Skalar ist. Es werden Modelle der Form gesucht: 
+
+$$ \hat{y} = β_1 T_1 + ... + β_k T_k $$
+
+wobei $T_i$  sich gegenseitig orthogonale Linearkombinationen der Xs sind.
+
+Es gibt mehrere Algorithmen zur Berechnung von PLS, typischerweise durch iterative Bestimmung der $T_i$ zur Vorhersage von y unter Beibehaltung der Orthogonalität. Ein häufiger Kritikpunkt ist, dass PLS kein genau definiertes Modellierungsproblem hat, was es schwierig macht, Algorithmen theoretisch zu unterscheiden.
+
+#### PLS-Modell mit vier Komponenten
+
+In diesem Beispiel wird ein PLS-Modell mit vier Komponenten an die Daten zur Fleischspektroskopie angepasst. Die Prädiktoren werden nicht skaliert, da sie fast die gleiche Varianz aufweisen.
+
+* `plsmod.coef_` gibt die Regressionskoeffizienten an, die die ursprünglichen Xtrain-Variablen mit der Zielvariablen trainmeat.fat verbinden. Dies ist ein Vektor der Größe 100 x 1.
+* `plsmod.x_loadings_` zeigt, wie jede ursprüngliche X-Variable zu jeder der latenten Komponenten beiträgt. Es handelt sich um eine Matrix der Größe 100 x 4.
+* `plsmod.y_loadings_` zeigt, wie die Y-Variable mit jeder der latenten Komponenten zusammenhängt. Es handelt sich um einen Vektor der Größe 1 x 4.
+* `plsmod.x_scores_` stellen die ursprünglichen X-Variablen dar, die in den neuen Raum transformiert wurden, der durch die latenten Komponenten definiert ist. Diese Scores sind die Projektionen der Prädiktorvariablen auf die PLS-Komponenten und werden verwendet, um die Varianz in den Prädiktorvariablen zu erklären, die mit der Antwortvariablen zusammenhängt. Dies ist eine Matrix der Größe 172 x 4.
+* `plsmod.y_scores_` stellen die Y-Variable dar, die in den neuen Raum transformiert wurde, der durch die während des PLS-Regressionsprozesses extrahierten latenten Komponenten definiert ist. Diese Scores sind die Projektionen der Antwortvariablen auf die PLS-Komponenten. Sie werden verwendet, um die Varianz in der Antwortvariablen zu erklären, die mit den Prädiktoren zusammenhängt. Es handelt sich um eine Matrix der Größe 172 x 4.
+    * Diese Scores werden verwendet, um die Kovarianz zwischen den Projektionen von X und Y während des PLS-Regressionsprozesses zu maximieren.
+    * Sie erfassen die relevantesten Informationen in Y, die mit der latenten Struktur von X zusammenhängen.
+
+#### Auswertung der Vorhersagegenauigkeit
+
+Die Vorhersageleistung des PLS-Modells ist geringfügig besser als die des PCA-Regressionsmodells mit vier Komponenten, was zu erwarten ist, da die PLS-Regression darauf ausgelegt ist, die Antwort zu modellieren. 
+
+**Möglicherweise werden mit mehr als vier Komponenten bessere Ergebnisse erzielt.** Um dies zu testen, wird eine 10-fache Kreuzvalidierung auf der Trainingsstichprobe durchgeführt. 
+
+Die Kreuzvalidierung ergibt, dass die beste Leistung mit 14 Komponenten erzielt wird. Mit diesem Modell wird ein RMSE von 1,88 auf der Trainingsstichprobe und ein RMSE von 2,17 auf der Teststichprobe erzielt.
+
+#### Zusammenfassung
+
+PLS ist eine effektive Methode zur Modellierung der Beziehung zwischen einem Satz von Prädiktorvariablen und einer Antwortvariablen. Es ist besonders nützlich, wenn die Anzahl der Prädiktoren groß ist im Verhältnis zur Stichprobengröße oder wenn die Prädiktoren stark korreliert sind. 
+
+**Im Vergleich zur PCR ist PLS oft besser für Vorhersageprobleme geeignet, da es Linearkombinationen konstruiert, die speziell auf die Vorhersage der Antwort abzielen.**
+
+Es ist jedoch wichtig zu beachten, dass PLS und PCR genauso empfindlich auf Annahmen reagieren wie OLS. Daher ist es wichtig, diese Überprüfungen in eine umfassende Analyse einzubeziehen.
+
+### 7. Ridge-Regression
+
+* Die Ridge-Regression geht davon aus, dass normalisierte Regressionskoeffizienten nicht sehr groß sein sollten, was vernünftig ist, wenn man viele Prädiktoren mit potenziellen Auswirkungen auf die Antwort hat.
+* Diese Methode beinhaltet eine Schrumpfung und ist besonders effektiv, wenn die Modellmatrix kollinear ist, wodurch die Kleinste-Quadrate-Schätzungen instabil werden.
+* Unter der Annahme, dass die Prädiktoren durch ihre Mittelwerte zentriert, durch ihre Standardabweichungen skaliert und die Antwort zentriert ist, minimiert die Ridge-Regressionsschätzung:
+    $$ (y - X β)^T (y - X β) + α \sum_j β_j^2 $$
+    * für eine Wahl von $α \geq 0 $. Der Strafterm ist  $\sum_j β_j^2$.
+    * Ziel ist es, diesen Term klein zu halten. Die Ridge-Regression ist aufgrund dieses Terms eine Art der **penalisierten Regression**, auch bekannt als **Regularisierung**.
+* Die Ridge-Regressionsschätzungen von βs:
+    $$ \hat{β} = (X^T X + α I)^{-1} X^T y $$
+    * Der Term $\alpha I$ führt einen „Ridge“ in die $X^T X$-Matrix ein, was der Methode ihren Namen gibt.
+* Ein äquivalenter Ausdruck des Problems ist die Wahl von $\beta$, um zu minimieren:
+    $$ (y - X β)^T (y - X β) \text{ ~~subject to~~ } \sum_{j=1}^p β_j^2 \leq t^2 $$
+    * Hier spielt t die gleiche Rolle wie α. Man findet die Kleinste-Quadrate-Lösung mit einer Obergrenze für die Größe der Koeffizienten.
+* Die Ridge-Regression lässt sich auch aus Bayes'scher Sicht rechtfertigen, wo eine A-priori-Verteilung kleinere Parameterwerte begünstigt.
+* Während $α$ oder $t$ automatisch gewählt werden können, ist es auch ratsam, die $\hat{\beta}$-Werte gegen $α$ aufzutragen. Wählen Sie das kleinste $α$, das stabile $\beta$-Schätzungen liefert.
 
-#### 3.1. Extrahieren der Regressionsgrößen
+#### Anwendung der Ridge-Regression auf die Fleischspektroskopie-Daten 
 
-##### 3.1.1. Grundlagen
+* Wenn $\alpha = 0$ ist, entspricht dies den kleinsten Quadraten, und wenn $\alpha \to 0$ geht, geht $\hat{\beta} \to 0$. In der Praxis konzentrieren wir uns auf einen engeren Bereich von $\alpha$. 
+* Es wird ein logarithmisch beabstandetes Gitter von $\alpha$-Werten zwischen $10^{-5}$ und $10^{-10}$ verwendet. Für andere Datensätze müssen Sie diesen Bereich möglicherweise anpassen, um den relevanten Bereich zu erfassen.
 
-*   Schätzungen der Koeffizienten: `lmod.params`
-*   Beta-Standardfehler: `lmod.bse`
-*   p-Werte: `lmod.pvalues`
-*   T-Statistiken für die Koeffizienten: `lmod.tvalues`
+* Der Wert von α kann mit Kreuzvalidierung ausgewählt werden, indem ein Gitter von α-Werten durchsucht wird.
+* Das Ergebnis ist besser als das PLS-Ergebnis.
 
-##### 3.1.2. F-Werte
+* Die Ridge-Koeffizienten sind weniger glatt als die Vier-Komponenten-PCA, was für eine gute Vorhersage nicht ausreicht.
+* Die optimale Schrumpfung ist moderat, und die Ridge-Koeffizienten sind viel kleiner als die des vollen linearen Modells.
+* Ridge-Regressionskoeffizienten sind verzerrt, was unerwünscht, aber nicht der einzige Faktor ist. Der mittlere quadratische Fehler (MSE) misst die Schätzgenauigkeit und kann in das Quadrat der Verzerrung (systematischer Fehler) und die Varianz (Variabilität der Schätzung) aufgeteilt werden:
+    $$ \mathbb{E}\left(\hat{\beta}-\beta\right)^2=\left(\mathbb{E}\left(\hat{\beta}-\beta\right)\right)^2+\mathbb{E}\left(\hat{\beta}-\mathbb{E}\left(\hat{\beta}\right)\right)^2 $$
+    * Die Reduzierung der Schätzvarianz kann die Verzerrung erhöhen, aber dieser Kompromiss kann den MSE deutlich senken, so dass eine gewisse Verzerrung akzeptabel ist. Dies ist ein häufiges Problem bei der Ridge-Regression.
+* Eine Studie von Frank und Friedman aus dem Jahr 1993 ergab, dass die Ridge-Regression die PCR und PLS übertraf, stellte aber fest, dass die beste Methode je nach Datensatz variiert, was es schwierig macht, einen klaren Gewinner zu ermitteln.
 
-*   F-Statistik und ihr p-Wert: `lmod.fvalue, lmod.f_pvalue`
+### 8. Lasso
 
-##### 3.1.3. Konfidenzintervalle
+* Die Lasso-Methode ähnelt der Ridge-Regression, minimiert aber eine Gleichung mit einem anderen Strafterm, um den optimalen Wert für  $\hat{β}$ auszuwählen:
+    $$ \left({y}-{X\beta}\right)^\prime\left({y}-{X\beta}\right) \text{ ~~subject to~~ } \sum_{j}^{p}\left|\beta_j\right|\le t $$
+    * oder äquivalent zu minimieren:
+    $$ \left({y}-{X\beta}\right)^\prime\left({y}-{X\beta}\right) + \alpha \sum_j \left|\beta_j\right| $$
 
-*   Konfidenzintervalle der Koeffizienten: `lmod.conf_int()`
-*   Ob die t-Verteilung für die Inferenz verwendet werden soll: `lmod.use_t`
-    *   Wahr: Die t-Verteilung wird für die Inferenz verwendet.
-    *   Falsch: Die Normalverteilung wird für die Inferenz verwendet.
+* Die von Tibshirani 1996 eingeführte Lasso-Methode hat keine explizite Lösung, kann aber mit der Least-Angle-Regression effizient gelöst werden, wie von Efron et al. 2004 beschrieben.
+* „Lasso“ steht für „Least Angle Shrinkage and Selection Operator“.
+* Der Hauptunterschied zwischen Lasso und Ridge-Regression liegt in ihren Lösungen.
+    * Die Lasso-Beschränkung $L_1$  $\sum_{j}^{p}|\beta_j| \le t$ bildet ein Quadrat in zwei Dimensionen und ein Polytop in höheren Dimensionen, was oft dazu führt, dass einige Koeffizienten Null sind. Wenn $t$ zunimmt, werden mehr Variablen einbezogen und ihre Koeffizienten wachsen. Für große $t$ wird die Beschränkung redundant und liefert die Kleinste-Quadrate-Lösung.
+    * Bei moderaten $t$-Werten tendieren viele $\hat{β}$ in Lasso dazu, Null zu sein, was es ideal für spärliche Effekte macht, bei denen nur wenige Prädiktoren eine Rolle spielen.
+* Lasso fungiert als **Variablenselektionsmethode**, indem es Prädiktoren mit $\hat{β} = 0$ eliminiert. Im Gegensatz dazu reduziert die Ridge-Regression  $\hat{β}$, eliminiert aber keine Variablen.
 
-##### 3.1.4. Güte der Anpassung
+#### Anwendung der Lasso-Methode auf die Fleischspektroskopie-Daten 
 
-*   R-Quadrat: `lmod.rsquared`
-*   Angepasstes R-Quadrat: `lmod.rsquared_adj`
-*   Akaike Information Criterion AIC: `lmod.aic`
-*   Bayesian Information Criterion BIC: `lmod.bic`
+* Der kleine Wert von a zeigt eine sehr geringe Schrumpfung an. Es wird der Anteil der Nicht-Null-Koeffizienten in dieser Anpassung überprüft.
+    * Keiner der Lasso-Koeffizienten ist Null.
 
-##### 3.1.5. Quadratsummen
+* Die Ergebnisse sind schlechter als bei PCR, PLS und Ridge-Regression, aber immer noch besser als das volle Kleinste-Quadrate-Modell.
+* Konvergenzprobleme könnten durch Skalieren der Daten behoben werden, was jedoch zusätzlichen Aufwand erfordert, um die Teststichprobe in ähnlicher Weise zu skalieren.
+* Dieses Beispiel ist aufgrund der starken Kollinearität zwischen den Prädiktoren, die meist für die Vorhersage der Antwort nützlich sind, nicht gut für Lasso geeignet.
+* Lasso zeichnet sich durch spärliche Effekte aus, wie z. B. bei Genexpressionsdaten, bei denen nur wenige Gene das Ergebnis beeinflussen.
+* Es funktioniert auch, wenn die Anzahl der Prädiktoren die Anzahl der Beobachtungen übersteigt.
+* Allerdings ist Lasso in Anwendungen mit nicht-spärlichen Effekten, wie z. B. vielen sozioökonomischen Beispielen, weniger effektiv.
+* In diesem Beispiel verursacht die Messung aller Frequenzen wahrscheinlich keine zusätzlichen Kosten. In Anwendungen, bei denen die Erfassung zusätzlicher Prädiktoren jedoch kostspielig ist, ist Lasso als effektive Modellauswahlmethode besonders wertvoll.
 
-| Quelle        | Freiheitsgrade | Quadratsummen | Mittleres Quadrat     |
-| ------------- | --------------- | ------------- | --------------------- |
-| Regression    | (p-1)          | ESS           | $\frac{\text{ESS}}{p-1}$ |
-| Residuen      | (n-p)          | RSS           | $\frac{\text{RSS}}{n-p}$ |
-| Gesamt        | (n-1)          | TSS           | $\frac{\text{TSS}}{n-1}$ |
 
-*   Residuenquadratsumme RSS: `lmod.ssr`
-*   Quadratsumme der Residuen SSR: `lmod.ssr`
-*   Erklärte Quadratsumme ESS: `lmod.ess`
-*   Die zentrierte TSS = Summe(beobachteter Wert - Mittelwert(beobachtete Variable))²: `lmod.centered_tss, lmod.ssr + lmod.ess`
-*   Die nicht zentrierte TSS = Summe(beobachteter Wert²): `lmod.uncentered_tss, sum(lmod.model.endog**2)`
-*   Freiheitsgrade des Modells: `lmod.df_model`
-*   Freiheitsgrade der Residuen: `lmod.df_resid`
-*   Anzahl der Beobachtungen: `lmod.nobs`
-*   Mittlerer quadratischer Fehler des Modells: `lmod.mse_model, lmod.ess / lmod.df_model`
-*   Mittlerer quadratischer Fehler der Residuen: `lmod.mse_resid, lmod.scale`
-*   Gesamter mittlerer quadratischer Fehler: `lmod.mse_total, lmod.centered_tss / (lmod.df_model + lmod.df_resid)`
+### 9. Andere Methoden
 
-##### 3.1.6. Angepasste Werte und Residuen
+* Das scikit-learn-Paket bietet verschiedene Schrumpfungsmethoden.
+    * **Elastic-Net** kombiniert Ridge und Lasso, indem es sowohl L1- als auch L2-Strafen verwendet, so dass einige Prädiktoren weggelassen werden können, während die Regularisierungsvorteile von Ridge erhalten bleiben.
+    * **Least Angle Regression (LARS)** bevorzugt Modelle mit weniger Prädiktoren, ähnlich wie Lasso.
+    * **Orthogonal Matching Pursuit** geht noch weiter, indem es eine maximale Anzahl von Nicht-Null-Koeffizienten vorgibt.
+* Das Paket enthält auch die **Bayes'sche Regression**, die schwach informative Prioris auferlegt, ähnlich wie die Ridge-Regression.
 
-*   Angepasste Werte: `lmod.fittedvalues.head(3)`
-*   Residuen: `lmod.resid.head(3)`
-*   Selbstausgerechnete Residuen: `(lmod.model.endog - lmod.fittedvalues).head(3)`
-*   Pearson-Residuen: `lmod.resid_pearson.round(3)`
-    *   Pearson-Residuen = Rohresiduen / ihre Standardabweichung: `( lmod.resid / np.sqrt(lmod.mse_resid) ).head(3)`
+* Es gibt viele Methoden, die eine kontinuierliche Antwort aus Prädiktoren vorhersagen können, wie z. B. **neuronale Netze, Support-Vektor-Maschinen und Random Forests**. 
+    * Diese Methoden verwenden jedoch keine Linearkombination von Prädiktoren.
+    * Obwohl sie effektiv sind, fehlt ihnen die Interpretierbarkeit der Modellkoeffizienten linearer Methoden, die deutlich zeigen, wie neue Vorhersagen generiert werden, wenn mehr Daten gesammelt werden.
 
-##### 3.1.7. Kovarianzmatrix
-
-*   Kovarianzmatrix der Koeffizienten: `lmod.cov_params()`
-*   Typ der Kovarianzmatrix: `lmod.cov_type`
-*   Normalisierte Kovarianzmatrix = Kovarianzmatrix / Residuenvarianz: `lmod.normalized_cov_params`
-*   HC0 ist die grundlegende heteroskedastizitätskonsistente Kovarianzmatrix. Sie wendet keine zusätzlichen Skalierungsfaktoren an: `lmod.cov_HC0.round(3); lmod.HC0_se`
-*   HC1 wendet eine Freiheitsgradkorrektur auf die HC0-Matrix an. Sie skaliert die Residuen mit n/(n-k), wobei n die Anzahl der Beobachtungen und k die Anzahl der Parameter ist: `lmod.cov_HC1.round(3); lmod.HC1_se`
-*   HC2 passt die Residuen an, indem es durch (1 - h\_i) dividiert, wobei h\_i die Hebelwerte (Diagonalelemente der Hutmatrix) sind: `lmod.cov_HC2.round(3); lmod.HC2_se`
-*   HC3 passt die Residuen an, indem es durch (1 - h\_i)² dividiert, wobei h\_i die Hebelwerte (Diagonalelemente der Hutmatrix) sind: `lmod.cov_HC3.round(3); lmod.HC3_se`
-
-##### 3.1.8. Ausreisser-Test
-
-*   Führt einen Ausreisser-Test an dem angepassten Modell durch: `lmod.outlier_test()`
-    *   student\_resid: Die studentisierten Residuen.
-    *   unadj\_p: Die nicht angepassten p-Werte für den Test.
-    *   bonf(p): Die Bonferroni-angepassten p-Werte.
-
-#### 3.2. Schrittweise Berechnung der Schätzungen für Beta
-
-*   X-Matrix: `X = galapagos.iloc[:,1:]; X.head()`
-*   X'X: `X.T @ X`
-*   (X'X)^-1: `XtXi = np.linalg.inv(X.T @ X); XtXi`
-*   (X'X)^-1 X'y: `(XtXi @ X.T) @ galapagos.Species`
-*   Eine andere Möglichkeit zur Berechnung der Schätzungen mit (X'X)^-1 Beta = X'y: `np.linalg.solve(X.T @ X, X.T @ galapagos.Species)`
-
-##### 3.2.1. Verwenden der Moore-Penrose-Inversen zur Berechnung der Schätzungen
-
-*   Moore-Penrose-Inverse X^- = (X'X)^-1 X': `Xmp = np.linalg.pinv(X); Xmp.shape`
-*   Berechnen Sie die Schätzungen: `Xmp @ galapagos.Species`
-
-##### 3.2.2. Verwenden der QR-Zerlegung zur Berechnung der Schätzungen
-
-*   q, r: `q, r = np.linalg.qr(X)`
-*   f: `f = q.T @ galapagos.Species; f`
-*   Berechnen Sie die Schätzungen: `sp.linalg.solve_triangular(r, f)`
-*   Alternativ: `lmod_qr = smf.ols('Species ~ Area + Elevation + Nearest + Scruz  + Adjacent', galapagos).fit(method="qr") lmod_qr.params`
-
-##### 3.2.3. Verwenden des allgemeinen Lösers für das Problem der kleinsten Quadrate
-
-*   res: Die Summe der quadrierten Residuen der Lösung. Wenn der Rang von X kleiner als die Anzahl der Spalten in X ist, ist dies ein leeres Array.
-*   rnk: Der effektive Rang der Matrix X. Dies ist die Anzahl der Singulärwerte von X, die größer als eine bestimmte Toleranz sind.
-*   s: Die Singulärwerte von X.
-
-```python
-params, res, rnk, s = sp.linalg.lstsq(X, galapagos['Species'])
-```
-
-#### 3.3. Identifizierbarkeit
-
-##### 3.3.1. Vollständige Nicht-Identifizierbarkeit
-
-```python
-galapagos['Adiff'] = galapagos.Area - galapagos.Adjacent 
-lmod_ide = smf.ols('Species ~ Area+Elevation+Nearest+Scruz+Adjacent+Adiff', galapagos).fit() 
-lmod_ide.sumary()
-
-### Zeige den kleinsten Eigenwert
-lmod_ide.eigenvals[-1]
-
-### Verwendung der QR-Zerlegung
-lmod_ide_qr = smf.ols('Species ~ Area+Elevation+Nearest+Scruz+Adjacent+Adiff', galapagos).fit(method="qr") 
-lmod_ide_qr.sumary()
-```
-
-##### 3.3.2. Experiment für nahe Nicht-Identifizierbarkeit
-
-```python
-np.random.seed(123) 
-galapagos['Adiffe'] = galapagos.Adiff + (np.random.rand(30)-0.5)*0.001 
-lmod_ide_ex = smf.ols('Species ~ Area+Elevation+Nearest+Scruz+Adjacent+Adiffe', galapagos).fit() 
-lmod_ide_ex.sumary()
-
-lmod_ide_ex_qr = smf.ols('Species ~ Area+Elevation+Nearest+Scruz+Adjacent+Adiffe', galapagos).fit(method="qr") 
-lmod_ide_ex_qr.sumary()
-```
-
-#### 3.4. Erklärung
-
-Um die Wirkung der Erhebung zu verstehen, können wir das **vollständige Modell** (`lmod`) mit einem **reduzierten Modell** (`lmodr`), das nur die Erhebung als Prädiktor enthält, vergleichen.
-
-*   Ein **Effektplot** kann verwendet werden, um die Bedeutung des Modells für einen bestimmten Prädiktor, in diesem Fall die Erhebung, zu verstehen. Der Plot zeigt die vorhergesagte Anzahl von Arten in Abhängigkeit von der Erhebung für beide Modelle.
-
-**Wichtige Punkte:**
-
-*   Das Konzept, Variablen konstant zu halten, ist im Kontext der Galapagos-Daten nicht sinnvoll, da es sich um Beobachtungsdaten handelt.
-*   Wir behaupten **keine Kausalität** in unserer Erklärung.
-*   Vergleiche zwischen Modellen können uns Einblicke geben, aber die Informationen sind **nicht absolut** und können sich ändern.
-
-### 4. Hypothesentests
-
-In der linearen Regression verwenden wir Hypothesentests, um die Signifikanz der Prädiktoren im Modell zu beurteilen. Die Quellen beschreiben verschiedene Arten von Hypothesentests, die in diesem Kontext durchgeführt werden können.
-
-#### 4.1. Test aller Prädiktoren
-
-Dieser Test prüft die Hypothese, dass **alle** Prädiktoren im Modell keinen Einfluss auf die Antwortvariable haben.
-
-*   **Nullhypothese:** $H_0: \beta_1 = \cdots = \beta_{p-1}=0$
-*   **Alternativhypothese:** Mindestens ein $\beta_j$ ist ungleich Null.
-
-Die **F-Statistik** wird verwendet, um diese Hypothese zu testen. Sie vergleicht die Anpassung des vollständigen Modells (mit allen Prädiktoren) mit der Anpassung eines reduzierten Modells (nur mit dem Intercept). 
-
-**Schritt-für-Schritt Berechnung der F-Statistik und des p-Werts:**
-
-1.  **RSS des reduzierten Modells:** Dies ist die gesamte Quadratsumme (TSS), die in mit `lmod.centered_tss` berechnet werden kann.
-2.  **RSS des vollständigen Modells:** `lmod.ssr`
-3.  **Freiheitsgrade des vollständigen Modells:** `lmod.df_resid`
-4.  **F-Statistik:**  `lmod.mse_model / lmod.mse_resid`. Dies entspricht der Formel $\frac{(TSS-RSS)/(p-1)}{RSS/(n-p)}$.
-5.  **p-Wert der F-Statistik:** `1-sp.stats.f.cdf(lmod.fvalue, lmod.df_model, lmod.df_resid)`.
-
-Die Quellen zeigen auch, wie man diesen Test mit `lmod.fvalue`, `lmod.f_pvalue` oder `lmod.compare_f_test(lmodr)` durchführen kann.
-
-#### 4.2. Testen eines Prädiktors
-
-Dieser Test bewertet die Signifikanz eines **einzelnen** Prädiktors im Modell. Es wird geprüft, ob das Entfernen dieses Prädiktors die Modellanpassung signifikant verschlechtert. 
-
-*   Die F-Statistik kann auch hier verwendet werden, wobei das reduzierte Modell alle Prädiktoren außer dem zu testenden enthält. 
-*   Alternativ kann die **t-Statistik** verwendet werden. Diese bewertet, wie viele Standardfehler der geschätzte Koeffizient von Null entfernt ist. 
-*   **Wichtig:** Die Quellen weisen darauf hin, dass man sich nicht nur auf die p-Werte verlassen sollte, um die praktische Bedeutung eines Prädiktors zu bestimmen. Ein kleiner p-Wert bedeutet lediglich statistische Signifikanz, nicht unbedingt praktische Relevanz.
-
-#### 4.3. Test eines Paares von Prädiktoren
-
-Analog zu 4.2 kann man auch die Signifikanz von **zwei** Prädiktoren gleichzeitig testen. Die Quellen erwähnen jedoch, dass die Interpretation der p-Werte der einzelnen t-Tests in diesem Fall problematisch ist. Es wird empfohlen, einen einzigen F-Test zu verwenden, um mehrere Prädiktoren gleichzeitig zu testen.
-
-#### 4.4. Test eines Unterraums
-
-Man kann auch Hypothesen über **lineare Kombinationen** von Prädiktoren testen. Die Quellen geben Beispiele wie $H_0: β_{Area}=β_{Adjacent}$ und $H_0: β_{Elevation}=0.5$. Diese Tests werden ebenfalls mit der F-Statistik durchgeführt.
-
-#### 4.5. Einschränkungen des Tests
-
-Die F-Tests sind nicht universell einsetzbar. 
-
-*   Sie können keine nichtlinearen Hypothesen testen. 
-*   Sie können keine Modelle vergleichen, die nicht verschachtelt sind oder unterschiedliche Prädiktoren haben. 
-*   Sie sind nicht direkt anwendbar, wenn die Modelle unterschiedliche Datensätze verwenden oder fehlende Werte haben.
-
-#### 4.6. Permutationstests
-
-Permutationstests sind eine **Alternative** zu den F-Tests, die **keine Normalverteilungsannahme** für die Fehler benötigen. Sie basieren auf der Idee, dass die beobachteten Daten zufällig permutiert werden, wenn die Nullhypothese (kein Zusammenhang zwischen Prädiktoren und Antwort) zutrifft.  Die Quellen beschreiben detailliert, wie Permutationstests für den Test aller Prädiktoren und für den Test eines Prädiktors durchgeführt werden können.
-
-### 5. Konfidenzintervalle für $\beta$
-
-Konfidenzintervalle geben einen Bereich an, in dem der wahre Wert eines Parameters (hier: die Regressionskoeffizienten $\beta$) mit einer bestimmten Wahrscheinlichkeit liegt.
-
-*   **Berechnung:** $\hat{β} *i \pm t* {\alpha/2, t-n} se(\hat{β})$
-    *   $\hat{β} *i$: Geschätzter Koeffizient
-    *   $t* {\alpha/2, t-n}$: Kritischer Wert der t-Verteilung
-    *   $se(\hat{β})$: Standardfehler des Koeffizienten
-*   **Interpretation:** Wenn wir ein 95%-Konfidenzintervall berechnen, bedeutet dies, dass wir zu 95% sicher sind, dass der wahre Wert des Parameters innerhalb dieses Intervalls liegt.
-*   **Zusammenhang mit Hypothesentests:** Die Quellen weisen darauf hin, dass wir, wenn wir ein Konfidenzintervall von (1-α)% wählen, nur Tests auf dem Signifikanzniveau von α% durchführen können.
-*   **Vorteile von Konfidenzintervallen:** Sie geben uns mehr Informationen über die Größe des Effekts eines Prädiktors und sind daher informativer als reine p-Werte.
-
-**Beispiel im Code:**
-
-*   Kritische Werte der t-Verteilung: `qt = np.array(sp.stats.t.interval(0.95,24))`
-*   Berechnung des Konfidenzintervalls: `lmod.params["Area"] + lmod.bse["Area"]*qt`
-*   Alle Konfidenzintervalle: `lmod.conf_int()`
-
-#### Bootstrap-Konfidenzintervalle
-
-Bootstrap-Methoden sind eine **nichtparametrische Methode**, um Konfidenzintervalle zu konstruieren, die **keine Normalverteilungsannahme** erfordern. 
-
-*   **Grundprinzip:** Anstatt die wahre Verteilung der Daten zu kennen, wird wiederholt aus den beobachteten Daten resampelt (mit Zurücklegen). 
-*   **Vorteil:** Die Methode kann auch dann angewendet werden, wenn theoretische Berechnungen schwierig oder unmöglich sind.
-*   **Anwendung:** Die Quellen beschreiben detailliert, wie Bootstrap-Konfidenzintervalle für die Regressionskoeffizienten berechnet werden können.
-
-### 6. Diagnose
-
-Nach der Anpassung eines Regressionsmodells ist es wichtig, die **Modellannahmen zu überprüfen**. Die Quellen konzentrieren sich hier auf die Annahme der **konstanten Varianz** der Fehler.
-
-#### 6.1. Konstante Varianz
-
-*   **Überprüfung:** Man kann die Residuen gegen die angepassten Werte plotten. Wenn die Varianz konstant ist, sollten die Punkte zufällig um die Nulllinie streuen.
-*   **Beispiel im Code:** `plt.scatter(lmod.fittedvalues, lmod.resid)`
-*   **Transformation:** Wenn die Varianz nicht konstant ist, kann eine Transformation der Antwortvariable hilfreich sein. Die Quellen geben das Beispiel einer Quadratwurzeltransformation für Zähldaten.
-
-### 7. Robuste Regression
-
-Robuste Regressionsmethoden sind weniger empfindlich gegenüber **Ausreißern** als die Methode der kleinsten Quadrate.
-
-*   **M-Schätzung:** Ein allgemeiner Ansatz für robuste Regression, bei dem die Koeffizienten so gewählt werden, dass eine bestimmte Funktion der Residuen minimiert wird.
-*   **Gewichtete kleinste Quadrate:** M-Schätzung kann als eine Form der gewichteten kleinsten Quadrate interpretiert werden, wobei die Gewichte von den Residuen abhängen.
-*   **Vergleich mit OLS:** Die Quellen vergleichen die Ergebnisse von OLS mit robusten Regressionsmethoden und stellen fest, dass sich die Koeffizientenwerte leicht verschieben und die Standardfehler im Allgemeinen reduziert werden.
-*   **Gewichte:** Die Analyse der Gewichte aus der robusten Anpassung kann Aufschluss darüber geben, welche Beobachtungen die Anpassung am stärksten beeinflussen.
-*   **Einschränkungen:** Robuste Regression ist kein Allheilmittel. Sie löst nicht das Problem von Punkten mit großem Einfluss und hilft nicht bei der Auswahl von Prädiktoren oder der Transformation von Variablen.
-
-### 8. Transformation
-
-Manchmal kann eine **Transformation der Antwortvariable** die Modellanpassung verbessern und die Interpretation erleichtern. 
-
-*   **Log-Transformation:** Bei einer Log-Transformation der Antwortvariable haben die Regressionskoeffizienten eine multiplikative Interpretation.
-*   **Box-Cox-Methode:** Eine allgemeine Methode, um die optimale Transformation für die Antwortvariable zu finden.
-*   **Auswahl von λ:** Der optimale Wert von λ kann durch Maximierung der Profil-Log-Likelihood bestimmt werden.
-*   **Konfidenzintervall für λ:** Ein Konfidenzintervall für λ kann verwendet werden, um zu beurteilen, wie viel Rundung von λ für die Interpretierbarkeit sinnvoll ist.
-
-**Beispiel im Code:**
-
-Die Quellen zeigen, wie die Box-Cox-Methode mit Python implementiert werden kann, um die optimale Transformation für die Galapagos-Daten zu finden.

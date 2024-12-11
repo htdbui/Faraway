@@ -1,0 +1,9 @@
+1. Describe the data
+2. Load packages and data
+3. Linear Regression
+4. Recursive Feature Elimination
+5. Principal Components Analysis
+6. Partial Least Squares
+7. Ridge Regression
+8. Lasso
+9. Other methods
