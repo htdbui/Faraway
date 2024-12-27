@@ -8,13 +8,12 @@ author: "db"
 
 - Die Galapagos-Daten haben **30 Beobachtungen und 6 Variablen**.
 	* Species: die Anzahl der auf der Insel gefundenen Arten
-	* Area: die Fläche der Insel (km²)
-	* Elevation: die höchste Erhebung der Insel (m)
-	* Nearest: die Entfernung von der nächsten Insel (km)
+	* Area: die FlÃ¤che der Insel (kmÂ²)
+	* Elevation: die hÃ¶chste Erhebung der Insel (m)
+	* Nearest: die Entfernung von der nÃ¤chsten Insel (km)
 	* Scruz: die Entfernung von der Insel Santa Cruz (km)
-	* Adjacent: die Fläche der angrenzenden Insel (km²)
+	* Adjacent: die FlÃ¤che der angrenzenden Insel (kmÂ²)
 
-# 2. Pakete und Daten laden
 
 # 3. Lineare Regression
 
@@ -23,98 +22,98 @@ author: "db"
 * **Modell erstellen:** Definieren Sie die Beziehung zwischen den Variablen mit einer Formel (z. B. `Species ~ Area + Elevation + Nearest + Scruz + Adjacent`).
 * **Modell anpassen:** `lmod = smf.ols(formula='Species ~ Area + Elevation + Nearest + Scruz  + Adjacent', data=galapagos).fit()`
 
-# 3.1. Regressionsgrößen extrahieren
+# 3.1. RegressionsgrÃ¶ÃŸen extrahieren
 
-- Nachdem Sie ein `lineares Regressionsmodell` angepasst haben, können Sie verschiedene `Größen` extrahieren.
+- Nachdem Sie ein `lineares Regressionsmodell` angepasst haben, kÃ¶nnen Sie verschiedene `GrÃ¶ÃŸen` extrahieren.
   - Diese helfen Ihnen, das `Modell` zu verstehen.
-  - Und seine `Anpassungsgüte` zu bewerten.
+  - Und seine `AnpassungsgÃ¼te` zu bewerten.
 
 ## 3.1.1. Grundlagen
 
-- **Koeffizientenschätzungen:**
+- **KoeffizientenschÃ¤tzungen:**
   - Die `Koeffizienten` der `linearen Gleichung`.
-  - Sie geben an, wie sich die `abhängige Variable` in Abhängigkeit von den `unabhängigen Variablen` ändert.
-  - Beispiel: `lmod.params`.
+  - Sie geben an, wie sich die `abhÃ¤ngige Variable` in AbhÃ¤ngigkeit von den `unabhÃ¤ngigen Variablen` Ã¤ndert.
+  - `lmod.params`.
 
 - **Standardfehler:**
-  - Ein Maß für die `Unsicherheit` der `Koeffizientenschätzungen`.
-  - Beispiel: `lmod.bse`.
+  - Ein MaÃŸ fÃ¼r die `Unsicherheit` der `KoeffizientenschÃ¤tzungen`.
+  - `lmod.bse`.
 
 - **p-Werte:**
-  - Ein Maß für die `statistische Signifikanz` der `Koeffizienten`.
-  - Beispiel: `lmod.pvalues`.
+  - Ein MaÃŸ fÃ¼r die `statistische Signifikanz` der `Koeffizienten`.
+  - `lmod.pvalues`.
 
 - **t-Statistiken:**
-  - Ein Maß für die `Größe der Koeffizienten` im Verhältnis zu ihren `Standardfehlern`.
-  - Beispiel: `lmod.tvalues`.
+  - Ein MaÃŸ fÃ¼r die `GrÃ¶ÃŸe der Koeffizienten` im VerhÃ¤ltnis zu ihren `Standardfehlern`.
+  - `lmod.tvalues`.
 
 ## 3.1.2. F-Werte
 
 - **F-Statistik:**
-  - Ein Maß für die `Gesamtsignifikanz` des `Modells`.
-  - Vergleicht die `Anpassungsgüte` des Modells mit der eines Modells ohne `Prädiktoren`.
-  - Beispiel: `lmod.fvalue`.
+  - Ein MaÃŸ fÃ¼r die `Gesamtsignifikanz` des `Modells`.
+  - Vergleicht die `AnpassungsgÃ¼te` des Modells mit der eines Modells ohne `PrÃ¤diktoren`.
+  - `lmod.fvalue`.
 
 - **p-Wert der F-Statistik:**
-  - Ein Maß für die `Wahrscheinlichkeit`, die beobachtete `F-Statistik` zu erhalten.
-  - Dies gilt, wenn es keinen Zusammenhang zwischen den `Prädiktoren` und der `Antwortvariablen` gibt.
-  - Beispiel: `lmod.f_pvalue`.
+  - Ein MaÃŸ fÃ¼r die `Wahrscheinlichkeit`, die beobachtete `F-Statistik` zu erhalten.
+  - Dies gilt, wenn es keinen Zusammenhang zwischen den `PrÃ¤diktoren` und der `Antwortvariablen` gibt.
+  - `lmod.f_pvalue`.
 
 ## 3.1.3. Konfidenzintervalle
 
 - **Konfidenzintervalle der Koeffizienten:**
-  - Ein Bereich von Werten, der die `wahren Werte` der `Koeffizienten` mit einer bestimmten Wahrscheinlichkeit (z. B. 95%) enthält.
-  - Beispiel: `lmod.conf_int()`.
+  - Ein Bereich von Werten, der die `wahren Werte` der `Koeffizienten` mit einer bestimmten Wahrscheinlichkeit (z. B. 95%) enthÃ¤lt.
+  - `lmod.conf_int()`.
 
 - **Bootstrap Konfidenzintervalle:**
-  - Ermöglichen die Konstruktion von `Konfidenzaussagen`, ohne anzunehmen, dass die `Daten` einer `Normalverteilung` folgen.
+  - ErmÃ¶glichen die Konstruktion von `Konfidenzaussagen`, ohne anzunehmen, dass die `Daten` einer `Normalverteilung` folgen.
 
-## 3.1.4. Anpassungsgüte
+## 3.1.4. AnpassungsgÃ¼te
 
 - **R-Quadrat:**
-  - Ein Maß für den Anteil der `Varianz` der `Antwortvariablen`.
-  - Dieser Anteil wird durch die `Prädiktoren` erklärt.
-  - Beispiel: `lmod.rsquared`.
+  - Ein MaÃŸ fÃ¼r den Anteil der `Varianz` der `Antwortvariablen`.
+  - Dieser Anteil wird durch die `PrÃ¤diktoren` erklÃ¤rt.
+  - `lmod.rsquared`.
 
 - **Angepasstes R-Quadrat:**
-  - Ein Maß für den Anteil der `Varianz` der `Antwortvariablen`.
-  - Dieser Anteil wird durch die `Prädiktoren` erklärt.
-  - Berücksichtigt die Anzahl der `Prädiktoren` im Modell.
-  - Beispiel: `lmod.rsquared_adj`.
+  - Ein MaÃŸ fÃ¼r den Anteil der `Varianz` der `Antwortvariablen`.
+  - Dieser Anteil wird durch die `PrÃ¤diktoren` erklÃ¤rt.
+  - BerÃ¼cksichtigt die Anzahl der `PrÃ¤diktoren` im Modell.
+  - `lmod.rsquared_adj`.
 
 - **Akaike-Informationskriterium (AIC):**
-  - Ein Maß für die `Anpassungsgüte` des Modells.
-  - Berücksichtigt die `Komplexität` des Modells.
-  - Beispiel: `lmod.aic`.
+  - Ein MaÃŸ fÃ¼r die `AnpassungsgÃ¼te` des Modells.
+  - BerÃ¼cksichtigt die `KomplexitÃ¤t` des Modells.
+  - `lmod.aic`.
 
 - **Bayessches Informationskriterium (BIC):**
-  - Ein Maß für die `Anpassungsgüte` des Modells.
-  - Berücksichtigt die `Komplexität` des Modells und die `Stichprobengröße`.
-  - Beispiel: `lmod.bic`.
+  - Ein MaÃŸ fÃ¼r die `AnpassungsgÃ¼te` des Modells.
+  - BerÃ¼cksichtigt die `KomplexitÃ¤t` des Modells und die `StichprobengrÃ¶ÃŸe`.
+  - `lmod.bic`.
 
 ## 3.1.5. Quadratsummen
 
 - **Residuenquadratsumme (RSS):**
   - Die Summe der `quadrierten Differenzen` zwischen den `beobachteten Werten` der `Antwortvariablen` und den vom `Modell` vorhergesagten Werten.
-  - Beispiel: `lmod.ssr`.
+  - `lmod.ssr`.
 
-- **Erklärte Quadratsumme (ESS):**
+- **ErklÃ¤rte Quadratsumme (ESS):**
   - Die Summe der `quadrierten Differenzen` zwischen den vom `Modell` vorhergesagten Werten und dem `Mittelwert` der `Antwortvariablen`.
-  - Beispiel: `lmod.ess`.
+  - `lmod.ess`.
 
 - **Totale Quadratsumme (TSS):**
   - Die Summe der `quadrierten Differenzen` zwischen den `beobachteten Werten` der `Antwortvariablen` und dem `Mittelwert` der `Antwortvariablen`.
-  - Beispiel: `lmod.centered_tss`.
+  - `lmod.centered_tss`.
 
 ## 3.1.6. Angepasste Werte und Residuen
 
 - **Angepasste Werte:**
   - Die vom Modell `vorhergesagten Werte` der `Antwortvariablen`.
-  - Beispiel: `lmod.fittedvalues`.
+  - `lmod.fittedvalues`.
 
 - **Residuen:**
   - Die Differenzen zwischen den `beobachteten Werten` der `Antwortvariablen` und den vom Modell `vorhergesagten Werten`.
-  - Beispiel: `lmod.resid`.
+  - `lmod.resid`.
 
 - **Pearson-Residuen:**
   - Eine Art von `standardisierten Residuen`.
@@ -122,31 +121,31 @@ author: "db"
 ## 3.1.7. Kovarianzmatrix
 
 - **Kovarianzmatrix der Koeffizienten:**
-  - Eine Matrix, die die `Varianzen` und `Kovarianzen` der `Koeffizientenschätzungen` enthält.
-  - Beispiel: `lmod.cov_params()`.
+  - Eine Matrix, die die `Varianzen` und `Kovarianzen` der `KoeffizientenschÃ¤tzungen` enthÃ¤lt.
+  - `lmod.cov_params()`.
 
 - **Normalisierte Kovarianzmatrix:**
   - Die `Kovarianzmatrix` dividiert durch die `Restvarianz`.
 
-## 3.1.8. Ausreißertest
+## 3.1.8. AusreiÃŸertest
 
-* **Ausreißertest:** Ein Test, um festzustellen, ob es Beobachtungen gibt, die nicht zum Modell passen (z. B. `lmod.outlier_test()`).
+* **AusreiÃŸertest:** Ein Test, um festzustellen, ob es Beobachtungen gibt, die nicht zum Modell passen (z. B. `lmod.outlier_test()`).
 
-# 3.2. Schrittweise Berechnung der Schätzungen für Beta
+# 3.2. Schrittweise Berechnung der SchÃ¤tzungen fÃ¼r Beta
 
 **Die Koeffizienten werden mit der Formel** $\hat{\beta} = (X'X)^{-1}X'y$  berechnet.
 
-* **X:** die Matrix der Prädiktorvariablen.
+* **X:** die Matrix der PrÃ¤diktorvariablen.
 * **y:** der Vektor der Antwortvariablen.
 
-## 3.2.1. Verwendung der Moore-Penrose-Inversen zur Berechnung der Schätzungen
+## 3.2.1. Verwendung der Moore-Penrose-Inversen zur Berechnung der SchÃ¤tzungen
 
 - **Moore-Penrose-Inverse:**
   - Eine verallgemeinerte `Inverse` einer `Matrix`.
   - Kann verwendet werden, um die `Koeffizienten` eines `linearen Regressionsmodells` zu berechnen.
-  - Beispiel: `Xmp = np.linalg.pinv(X)`.
+  - `Xmp = np.linalg.pinv(X)`.
 
-## 3.2.2. Verwendung der QR-Zerlegung zur Berechnung der Schätzungen
+## 3.2.2. Verwendung der QR-Zerlegung zur Berechnung der SchÃ¤tzungen
 
 - **QR-Zerlegung:**
   - Die `QR-Zerlegung` ist eine Methode.
@@ -154,53 +153,53 @@ author: "db"
     - Ein Teil ist eine `orthogonale Matrix`.
     - Der andere Teil ist eine `obere Dreiecksmatrix`.
   - Diese Zerlegung hilft bei der Berechnung von `Koeffizienten` eines `linearen Regressionsmodells`.
-    - Beispiel: `q, r = np.linalg.qr(X)`.
+    - `q, r = np.linalg.qr(X)`.
 
-## 3.2.3. Verwendung des allgemeinen Lösers für das Problem der kleinsten Quadrate
+## 3.2.3. Verwendung des allgemeinen LÃ¶sers fÃ¼r das Problem der kleinsten Quadrate
 
-Der allgemeine Löser für das Problem der kleinsten Quadrate ist eine numerische Methode, um die Koeffizienten eines linearen Regressionsmodells zu berechnen (z. B. `params, res, rnk, s = sp.linalg.lstsq(X, galapagos['Species'])`).
+Der allgemeine LÃ¶ser fÃ¼r das Problem der kleinsten Quadrate ist eine numerische Methode, um die Koeffizienten eines linearen Regressionsmodells zu berechnen (z. B. `params, res, rnk, s = sp.linalg.lstsq(X, galapagos['Species'])`).
 
 # 3.3. Identifizierbarkeit
 
 - **Identifizierbarkeit in der linearen Regression:**
-  - Bezieht sich auf die Fähigkeit, `eindeutige Schätzungen` für die `Modellparameter` zu erhalten.
+  - Bezieht sich auf die FÃ¤higkeit, `eindeutige SchÃ¤tzungen` fÃ¼r die `Modellparameter` zu erhalten.
   
-- **Problem bei Linearkombination der Prädiktoren:**
-  - Wenn `eine Linearkombination der Prädiktoren` eine `Konstante` ergibt, sind die `Parameter` des Modells nicht identifizierbar.
+- **Problem bei Linearkombination der PrÃ¤diktoren:**
+  - Wenn `eine Linearkombination der PrÃ¤diktoren` eine `Konstante` ergibt, sind die `Parameter` des Modells nicht identifizierbar.
   
 - **Folgen:**
-  - Dies führt zu `nicht eindeutigen Koeffizientenschätzungen`.
+  - Dies fÃ¼hrt zu `nicht eindeutigen KoeffizientenschÃ¤tzungen`.
 
-# 3.4. Erklärung
+# 3.4. ErklÃ¤rung
 
 - **Interpretation der Ergebnisse eines linearen Regressionsmodells:**
   - Sobald ein `lineares Regressionsmodell` angepasst ist, ist es wichtig, die Ergebnisse zu interpretieren.
-  - Die Interpretation hilft zu verstehen, was die Ergebnisse über die `Beziehung zwischen den Variablen` aussagen.
+  - Die Interpretation hilft zu verstehen, was die Ergebnisse Ã¼ber die `Beziehung zwischen den Variablen` aussagen.
 
 - **Effekt einer Variablen verstehen:**
-  - Um den `Effekt einer Variablen` zu verstehen, während andere `Variablen konstant` gehalten werden, kann ein `Effektdiagramm` hilfreich sein.
+  - Um den `Effekt einer Variablen` zu verstehen, wÃ¤hrend andere `Variablen konstant` gehalten werden, kann ein `Effektdiagramm` hilfreich sein.
 
 - **Besonderheit der Galapagos-Daten:**
-  - Bei den `Galapagos-Daten` ist es nicht möglich, `Variablen konstant zu halten`, da es sich um `Beobachtungsdaten` handelt.
+  - Bei den `Galapagos-Daten` ist es nicht mÃ¶glich, `Variablen konstant zu halten`, da es sich um `Beobachtungsdaten` handelt.
   - Daher sollten die `Ergebnisse` mit Vorsicht interpretiert werden.
 
 
 # 4. Hypothesentests
 
 - **Hypothesentests in der linearen Regression:**
-  - Werden verwendet, um die `Signifikanz` der `Prädiktoren` im Modell zu beurteilen.
+  - Werden verwendet, um die `Signifikanz` der `PrÃ¤diktoren` im Modell zu beurteilen.
 
 - **Nullhypothese ($H_0$):**
-  - Besagt, dass es keinen `Zusammenhang` zwischen den `Prädiktoren` und der `Antwortvariablen` gibt.
+  - Besagt, dass es keinen `Zusammenhang` zwischen den `PrÃ¤diktoren` und der `Antwortvariablen` gibt.
 
 - **Alternativhypothese ($H_a$):**
   - Besagt, dass es einen `Zusammenhang` gibt.
 
-## 4.1. Test aller Prädiktoren
+## 4.1. Test aller PrÃ¤diktoren
 
 - **Gesamtsignifikanz des Modells:**
   - Dieser Test beurteilt die `Gesamtsignifikanz` des Modells.
-  - Vergleicht die `Anpassungsgüte` eines Modells mit allen `Prädiktoren` mit einem Modell ohne Prädiktoren (`nur der Achsenabschnitt`).
+  - Vergleicht die `AnpassungsgÃ¼te` eines Modells mit allen `PrÃ¤diktoren` mit einem Modell ohne PrÃ¤diktoren (`nur der Achsenabschnitt`).
 
 - **Hypothesen:**
   - **Nullhypothese ($H_0$):**
@@ -210,61 +209,61 @@ Der allgemeine Löser für das Problem der kleinsten Quadrate ist eine numerische 
 
 - **F-Statistik:**
   - Verwendet, um diese Hypothesen zu testen.
-  - Vergleicht die `erklärte Varianz` des Modells mit der `unerklärten Varianz`.
+  - Vergleicht die `erklÃ¤rte Varianz` des Modells mit der `unerklÃ¤rten Varianz`.
 
 - **Berechnung der F-Statistik und des p-Werts:**
-  1. **RSS (Residuenquadratsumme) für das reduzierte Modell berechnen:**
+  1. **RSS (Residuenquadratsumme) fÃ¼r das reduzierte Modell berechnen:**
      - Dies ist gleich der `TSS (Gesamtquadratsumme)`.
-  2. **RSS für das vollständige Modell berechnen:**
-     - Inklusive aller `Prädiktoren`.
-  3. **Freiheitsgrade für das vollständige Modell berechnen:**
+  2. **RSS fÃ¼r das vollstÃ¤ndige Modell berechnen:**
+     - Inklusive aller `PrÃ¤diktoren`.
+  3. **Freiheitsgrade fÃ¼r das vollstÃ¤ndige Modell berechnen:**
      - Dies ist `n - p`, wobei `n` die Anzahl der Beobachtungen und `p` die Anzahl der Parameter im Modell ist.
   4. **F-Statistik berechnen:**
-     - Formel: $F = \frac{(\text{RSS}_{\text{reduziert}} - \text{RSS}_{\text{vollständig}}) / (p - 1)}{\text{RSS}_{\text{vollständig}} / (n - p)}$
+     - Formel: $F = \frac{(\text{RSS}_{\text{reduziert}} - \text{RSS}_{\text{vollstÃ¤ndig}}) / (p - 1)}{\text{RSS}_{\text{vollstÃ¤ndig}} / (n - p)}$
   5. **p-Wert der F-Statistik berechnen:**
-     - Dies ist die Wahrscheinlichkeit, eine `F-Statistik` zu beobachten, die so groß oder größer als die berechnete ist, wenn die `Nullhypothese` wahr ist.
+     - Dies ist die Wahrscheinlichkeit, eine `F-Statistik` zu beobachten, die so groÃŸ oder grÃ¶ÃŸer als die berechnete ist, wenn die `Nullhypothese` wahr ist.
 
 - **Python-Implementierung:**
-  - `F-Statistik` und `p-Wert` können mit den Attributen `fvalue` und `f_pvalue` des angepassten Modells abgerufen werden.
+  - `F-Statistik` und `p-Wert` kÃ¶nnen mit den Attributen `fvalue` und `f_pvalue` des angepassten Modells abgerufen werden.
 
-## 4.2. Testen eines Prädiktors
+## 4.2. Testen eines PrÃ¤diktors
 
-- **Signifikanz eines einzelnen Prädiktors:**
-  - Dieser Test beurteilt die `Signifikanz` eines `einzelnen Prädiktors` im Modell.
+- **Signifikanz eines einzelnen PrÃ¤diktors:**
+  - Dieser Test beurteilt die `Signifikanz` eines `einzelnen PrÃ¤diktors` im Modell.
 
 - **Hypothesen:**
   - **Nullhypothese ($H_0$):**
-    - Der `Regressionskoeffizient` des getesteten Prädiktors ist gleich `Null`.
+    - Der `Regressionskoeffizient` des getesteten PrÃ¤diktors ist gleich `Null`.
   - **Alternativhypothese ($H_a$):**
-    - Der `Regressionskoeffizient` des getesteten Prädiktors ist ungleich `Null`.
+    - Der `Regressionskoeffizient` des getesteten PrÃ¤diktors ist ungleich `Null`.
 
-- **Durchführung des Tests:**
-  - Sie können diesen Test mit einem `t-Test` oder einem `F-Test` durchführen.
+- **DurchfÃ¼hrung des Tests:**
+  - Sie kÃ¶nnen diesen Test mit einem `t-Test` oder einem `F-Test` durchfÃ¼hren.
   - Die `quadrierte t-Statistik` ist gleich der `F-Statistik`.
 
 - **Interpretation des p-Werts:**
-  - Ein `niedriger p-Wert` (typischerweise < 0,05) deutet darauf hin, dass der Prädiktor signifikant zur Vorhersage der `Antwortvariablen` beiträgt.
+  - Ein `niedriger p-Wert` (typischerweise < 0,05) deutet darauf hin, dass der PrÃ¤diktor signifikant zur Vorhersage der `Antwortvariablen` beitrÃ¤gt.
   - Beachten Sie, dass `statistische Signifikanz` nicht unbedingt `praktische Signifikanz` bedeutet.
 
-## 4.3. Testen eines Prädiktorpaares
+## 4.3. Testen eines PrÃ¤diktorpaares
 
-- **Gemeinsame Signifikanz von zwei Prädiktoren:**
-  - Dieser Test beurteilt die `gemeinsame Signifikanz` von `zwei Prädiktoren` im Modell.
+- **Gemeinsame Signifikanz von zwei PrÃ¤diktoren:**
+  - Dieser Test beurteilt die `gemeinsame Signifikanz` von `zwei PrÃ¤diktoren` im Modell.
 
 - **Hypothesen:**
   - **Nullhypothese ($H_0$):**
-    - Die `Regressionskoeffizienten` beider Prädiktoren sind gleich `Null`.
+    - Die `Regressionskoeffizienten` beider PrÃ¤diktoren sind gleich `Null`.
   - **Alternativhypothese ($H_a$):**
     - Mindestens einer der `Regressionskoeffizienten` ist ungleich `Null`.
 
 - **Verwendung eines F-Tests:**
   - Verwenden Sie einen `F-Test`, um diese Hypothese zu testen.
-  - Vermeiden Sie die Verwendung mehrerer `t-Tests`, da diese nicht einfach zu kombinieren sind und zu falschen Schlussfolgerungen führen können.
+  - Vermeiden Sie die Verwendung mehrerer `t-Tests`, da diese nicht einfach zu kombinieren sind und zu falschen Schlussfolgerungen fÃ¼hren kÃ¶nnen.
 
 ## 4.4. Testen eines Unterraums
 
-- **Signifikanz einer linearen Kombination von Prädiktoren:**
-  - Dieser Test beurteilt die `Signifikanz` einer `linearen Kombination von Prädiktoren` im Modell.
+- **Signifikanz einer linearen Kombination von PrÃ¤diktoren:**
+  - Dieser Test beurteilt die `Signifikanz` einer `linearen Kombination von PrÃ¤diktoren` im Modell.
 
 - **Hypothesen:**
   - **Nullhypothese ($H_0$):**
@@ -277,76 +276,76 @@ Der allgemeine Löser für das Problem der kleinsten Quadrate ist eine numerische 
 
 ## 4.5. Grenzen des Tests
 
-- **Einschränkungen von F-Tests in der linearen Regression:**
+- **EinschrÃ¤nkungen von F-Tests in der linearen Regression:**
   - Nichtlineare Hypothesen.
   - Nicht verschachtelte Modelle. 
-  - Fehlende Werte und unterschiedliche Datensätze:
+  - Fehlende Werte und unterschiedliche DatensÃ¤tze:
 
 ## 4.6. Permutationstests
 
 - **Permutation Tests:**
-  - Eine alternative Testmethode, die keine Annahme von normalen Fehlern benötigt.
+  - Eine alternative Testmethode, die keine Annahme von normalen Fehlern benÃ¶tigt.
 
 - **Interpretation:**
-  - Wenn die Antwort nicht mit den Prädiktoren zusammenhängt, wären die beobachteten Antwortwerte zufällig über die Fälle verteilt, ohne Bezug zu den Prädiktoren.
+  - Wenn die Antwort nicht mit den PrÃ¤diktoren zusammenhÃ¤ngt, wÃ¤ren die beobachteten Antwortwerte zufÃ¤llig Ã¼ber die FÃ¤lle verteilt, ohne Bezug zu den PrÃ¤diktoren.
 
 - **F-Statistik:**
-  - Ein Maß für die Assoziation zwischen den Prädiktoren und der Antwort.
-  - Größere Werte der F-Statistik weisen auf stärkere Assoziationen hin.
+  - Ein MaÃŸ fÃ¼r die Assoziation zwischen den PrÃ¤diktoren und der Antwort.
+  - GrÃ¶ÃŸere Werte der F-Statistik weisen auf stÃ¤rkere Assoziationen hin.
 
 - **Wahrscheinlichkeit bei keiner Beziehung:**
-  - Was ist die Chance unter der Annahme, dass keine Beziehung zwischen Prädiktoren und Antwort besteht, eine F-Statistik so groß oder größer als die beobachtete zu sehen?
+  - Was ist die Chance unter der Annahme, dass keine Beziehung zwischen PrÃ¤diktoren und Antwort besteht, eine F-Statistik so groÃŸ oder grÃ¶ÃŸer als die beobachtete zu sehen?
 
-- **Durchführung des Permutationstests:**
-  - Berechnung der F-Statistik für alle möglichen Permutationen der Antwortvariablen.
-  - Bestimmung des Anteils dieser Permutationen, die die beobachtete F-Statistik überschreiten.
-  - Ein kleiner Anteil deutet darauf hin, dass die Antwort mit den Prädiktoren zusammenhängt, und wir verwerfen die Annahme keiner Beziehung.
+- **DurchfÃ¼hrung des Permutationstests:**
+  - Berechnung der F-Statistik fÃ¼r alle mÃ¶glichen Permutationen der Antwortvariablen.
+  - Bestimmung des Anteils dieser Permutationen, die die beobachtete F-Statistik Ã¼berschreiten.
+  - Ein kleiner Anteil deutet darauf hin, dass die Antwort mit den PrÃ¤diktoren zusammenhÃ¤ngt, und wir verwerfen die Annahme keiner Beziehung.
 
-- **Schätzung des Anteils:**
-  - Dieser Anteil wird durch einen p-Wert geschätzt, der auf der Annahme normaler Fehler basiert.
+- **SchÃ¤tzung des Anteils:**
+  - Dieser Anteil wird durch einen p-Wert geschÃ¤tzt, der auf der Annahme normaler Fehler basiert.
 
-- **Permutationstests für einen Prädiktor:**
-  - Anstatt die Antwortvariable zu permutieren, wird eine der Prädiktorvariablen permutiert.
+- **Permutationstests fÃ¼r einen PrÃ¤diktor:**
+  - Anstatt die Antwortvariable zu permutieren, wird eine der PrÃ¤diktorvariablen permutiert.
 
-# 5. Konfidenzintervalle für $\beta$
+# 5. Konfidenzintervalle fÃ¼r $\beta$
 
 - **Konfidenzintervalle:**
-  - Liefern einen Bereich `plausibler Werte` für die `Regressionskoeffizienten` ($\beta$s).
-  - Geben die `Unsicherheit` über die geschätzten Koeffizienten an.
-  - Basieren auf den `Daten` und dem gewählten `Konfidenzniveau`.
+  - Liefern einen Bereich `plausibler Werte` fÃ¼r die `Regressionskoeffizienten` ($\beta$s).
+  - Geben die `Unsicherheit` Ã¼ber die geschÃ¤tzten Koeffizienten an.
+  - Basieren auf den `Daten` und dem gewÃ¤hlten `Konfidenzniveau`.
 
 - **95%-Konfidenzintervall:**
-  - Bedeutet, dass bei einer wiederholten `Stichprobenziehung` aus derselben `Grundgesamtheit` 95% der berechneten `Konfidenzintervalle` den `wahren Wert` des Parameters enthalten würden.
+  - Bedeutet, dass bei einer wiederholten `Stichprobenziehung` aus derselben `Grundgesamtheit` 95% der berechneten `Konfidenzintervalle` den `wahren Wert` des Parameters enthalten wÃ¼rden.
 
 - **Berechnung des Konfidenzintervalls:**
   - Konfidenzintervall: $\hat{\beta}_i \pm t_{\alpha/2, t-n} se(\hat{\beta})$
 
   - Bestandteile:
-    - $\hat{\beta}_i$: Geschätzter `Regressionskoeffizient` für den `i-ten Prädiktor`.
-    - $t_{\alpha/2, t-n}$: Kritischer Wert aus der `t-Verteilung` für das gewählte `Konfidenzniveau` (1-$\alpha$) und die `Freiheitsgrade` (n-p). 
-      - n: `Stichprobengröße`
+    - $\hat{\beta}_i$: GeschÃ¤tzter `Regressionskoeffizient` fÃ¼r den `i-ten PrÃ¤diktor`.
+    - $t_{\alpha/2, t-n}$: Kritischer Wert aus der `t-Verteilung` fÃ¼r das gewÃ¤hlte `Konfidenzniveau` (1-$\alpha$) und die `Freiheitsgrade` (n-p). 
+      - n: `StichprobengrÃ¶ÃŸe`
       - p: Anzahl der `Parameter` im Modell.
-    - $se(\hat{\beta})$: `Standardfehler` des geschätzten Koeffizienten.
+    - $se(\hat{\beta})$: `Standardfehler` des geschÃ¤tzten Koeffizienten.
 - **Interpretation des Konfidenzintervalls:**
-  - Wenn das `Konfidenzintervall` den Wert `Null` **nicht** enthält, ist der entsprechende `Prädiktor` statistisch `signifikant` auf dem gewählten `Signifikanzniveau`.
-  - Die `Breite` des Konfidenzintervalls gibt die `Präzision` der Schätzung an.
-    - Ein `breiteres Intervall` weist auf eine größere `Unsicherheit` hin.
+  - Wenn das `Konfidenzintervall` den Wert `Null` **nicht** enthÃ¤lt, ist der entsprechende `PrÃ¤diktor` statistisch `signifikant` auf dem gewÃ¤hlten `Signifikanzniveau`.
+  - Die `Breite` des Konfidenzintervalls gibt die `PrÃ¤zision` der SchÃ¤tzung an.
+    - Ein `breiteres Intervall` weist auf eine grÃ¶ÃŸere `Unsicherheit` hin.
 - **Vorteile der Verwendung von Konfidenzintervallen:**
-  - Konfidenzintervalle liefern mehr `Informationen` als nur die `Punktschätzung` des Koeffizienten.
-  - Sie ermöglichen eine bessere Beurteilung der `praktischen Signifikanz` eines Prädiktors.
+  - Konfidenzintervalle liefern mehr `Informationen` als nur die `PunktschÃ¤tzung` des Koeffizienten.
+  - Sie ermÃ¶glichen eine bessere Beurteilung der `praktischen Signifikanz` eines PrÃ¤diktors.
 
 ## Bootstrap-Konfidenzintervalle
 
 - **Bootstrap-Methode:**
-  - Eine `Resampling-Technik`, die `Konfidenzintervalle` ohne Annahme einer `Normalverteilung` ermöglicht.
+  - Eine `Resampling-Technik`, die `Konfidenzintervalle` ohne Annahme einer `Normalverteilung` ermÃ¶glicht.
 
 - **Schritte zur Berechnung von Bootstrap-Konfidenzintervallen:**
   1. Neue `Residuen` ziehen:
-     - Aus den beobachteten Residuen $\hat{e}_1, \cdots, \hat{e}_n$ werden mit Zurücklegen neue Residuen $\mathbf{e}^*$ gezogen.
+     - Aus den beobachteten Residuen $\hat{e}_1, \cdots, \hat{e}_n$ werden mit ZurÃ¼cklegen neue Residuen $\mathbf{e}^*$ gezogen.
   2. Neue `Antwortvariable` erstellen:
-     - Neue Residuen und ursprüngliche Prädiktoren nutzen, um $\mathbf{y}^* = \mathbf{X\hat{\beta}} + \mathbf{e}^*$ zu erzeugen.
-  3. Neues `Modell` schätzen:
-     - Mit $\mathbf{X}$ und $\mathbf{y}^*$ wird ein neues Modell geschätzt, und der Koeffizient $\mathbf{\hat{\beta}}$ berechnet.
+     - Neue Residuen und ursprÃ¼ngliche PrÃ¤diktoren nutzen, um $\mathbf{y}^* = \mathbf{X\hat{\beta}} + \mathbf{e}^*$ zu erzeugen.
+  3. Neues `Modell` schÃ¤tzen:
+     - Mit $\mathbf{X}$ und $\mathbf{y}^*$ wird ein neues Modell geschÃ¤tzt, und der Koeffizient $\mathbf{\hat{\beta}}$ berechnet.
   4. Schritte 1-3 `wiederholen`:
      - Diese Schritte werden viele Male (z.B. 4000 Mal) wiederholt.
   5. `Konfidenzintervall` bestimmen:
@@ -354,47 +353,47 @@ Der allgemeine Löser für das Problem der kleinsten Quadrate ist eine numerische 
 
 - **Vorteile der Bootstrap-Methode:**
   - Keine `Normalverteilungsannahme` erforderlich.
-  - Geeignet für `komplexe Modelle`, bei denen die theoretische Berechnung von Konfidenzintervallen schwierig ist.
+  - Geeignet fÃ¼r `komplexe Modelle`, bei denen die theoretische Berechnung von Konfidenzintervallen schwierig ist.
 
 # 6. Diagnose
 
 - **Diagnose von Regressionsmodellen:**
-  - Überprüfung der Modellannahmen und Identifizierung potenzieller Probleme.
+  - ÃœberprÃ¼fung der Modellannahmen und Identifizierung potenzieller Probleme.
 
-- **6.1. Konstante Varianz (Homoskedastizität):**
-  - Eine wichtige Annahme der linearen Regression ist die `Homoskedastizität`.
-  - Die Varianz der Residuen sollte über den gesamten Wertebereich der Prädiktoren konstant sein.
+- **6.1. Konstante Varianz (HomoskedastizitÃ¤t):**
+  - Eine wichtige Annahme der linearen Regression ist die `HomoskedastizitÃ¤t`.
+  - Die Varianz der Residuen sollte Ã¼ber den gesamten Wertebereich der PrÃ¤diktoren konstant sein.
 
-- **Überprüfung der Homoskedastizität:**
+- **ÃœberprÃ¼fung der HomoskedastizitÃ¤t:**
   - **Streudiagramm der Residuen gegen die angepassten Werte:**
-    - Wenn die Punkte zufällig um die horizontale Linie bei Null streuen und keine systematischen Muster zeigen, deutet dies auf konstante Varianz hin.
+    - Wenn die Punkte zufÃ¤llig um die horizontale Linie bei Null streuen und keine systematischen Muster zeigen, deutet dies auf konstante Varianz hin.
 
-- **Verletzung der Homoskedastizität:**
-  - Wenn die Varianz der Residuen nicht konstant ist (`Heteroskedastizität`):
+- **Verletzung der HomoskedastizitÃ¤t:**
+  - Wenn die Varianz der Residuen nicht konstant ist (`HeteroskedastizitÃ¤t`):
     - Die Standardfehler der Koeffizienten sind verzerrt.
-    - Die Hypothesentests sind ungültig.
-  - Eine Transformation der Antwortvariablen (z.B. Wurzel- oder Logarithmustransformation) kann helfen, die Homoskedastizität herzustellen.
+    - Die Hypothesentests sind ungÃ¼ltig.
+  - Eine Transformation der Antwortvariablen (z.B. Wurzel- oder Logarithmustransformation) kann helfen, die HomoskedastizitÃ¤t herzustellen.
 
 - **Beispiel:**
-  - Streudiagramm der Residuen gegen die angepassten Werte für ein Modell zur Vorhersage der Artenvielfalt auf den Galapagos-Inseln.
+  - Streudiagramm der Residuen gegen die angepassten Werte fÃ¼r ein Modell zur Vorhersage der Artenvielfalt auf den Galapagos-Inseln.
   - Das Diagramm zeigt eine `zunehmende Varianz der Residuen` mit steigenden angepassten Werten.
-  - Eine `Wurzeltransformation der Antwortvariablen` verbessert die Homoskedastizität.
+  - Eine `Wurzeltransformation der Antwortvariablen` verbessert die HomoskedastizitÃ¤t.
 
 # 7. Robuste Regression
 
 - **Least-Squares-Regression:**
   - Funktioniert am besten mit normalverteilten Fehlern.
-  - Langschwänzige Fehler können problematisch sein.
+  - LangschwÃ¤nzige Fehler kÃ¶nnen problematisch sein.
 
 - **Umgang mit extremen Werten:**
   - Ursache verstehen: Fehler entfernen, echte Beobachtungen behalten.
-  - Robuste Regression schätzt $\mathbb{E}(y) = X\beta$, unabhängig von Ausreißern.
+  - Robuste Regression schÃ¤tzt $\mathbb{E}(y) = X\beta$, unabhÃ¤ngig von AusreiÃŸern.
 
-- **Ausreißererkennung:**
+- **AusreiÃŸererkennung:**
   - Methoden zur Erkennung und Entfernung vor der Regression.
-  - Bei mehreren Ausreißern ist robuste Regression besser.
+  - Bei mehreren AusreiÃŸern ist robuste Regression besser.
 
-- **M-Schätzung:**
+- **M-SchÃ¤tzung:**
   - Minimiert $\sum_{i=1}^{n}\rho(y_i - x_i^\prime \beta)$.
   - Beispiele:
     - $\rho(x) = x^2$: Least-Squares.
@@ -410,9 +409,9 @@ Der allgemeine Löser für das Problem der kleinsten Quadrate ist eine numerische 
     - Huber: $w(u) = \begin{cases} 1 & \text{wenn } |u| \le c \\ \frac{c}{|u|} & \text{sonst} \end{cases}$.
 
 - **Iterative Berechnung:**
-  - M-Schätzungen erfordern iterative Schritte.
+  - M-SchÃ¤tzungen erfordern iterative Schritte.
   - Wechsel zwischen Weighted Least-Squares und Neuberechnung der Gewichte, bis Konvergenz erreicht ist.
-  - Standardfehler durch WLS mit $\widehat{\text{var}}(\hat{\beta}) = \hat{\sigma}^2 (X^\prime W X)^{-1}$ und einer robusten Schätzung von $\sigma^2$.
+  - Standardfehler durch WLS mit $\widehat{\text{var}}(\hat{\beta}) = \hat{\sigma}^2 (X^\prime W X)^{-1}$ und einer robusten SchÃ¤tzung von $\sigma^2$.
 
 # 8. Transformation
 
