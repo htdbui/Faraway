@@ -3,7 +3,6 @@ title: "Galapagos"
 author: "db"
 ---
 
-
 # 1. Datenbeschreibung
 
 - Die Galapagos-Daten haben **30 Beobachtungen und 6 Variablen**.
