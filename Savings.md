@@ -1,4 +1,9 @@
+---
+title: " Savings"
+author: "db"
+---
 # 1. Datenbeschreibung
+
 - **Beobachtungen**: 50
 - **Variablen**:
   - **sr**: Sparquote (Prozentsatz des verfügbaren Einkommens, das gespart wird)
@@ -9,7 +14,6 @@
 
 # 2. Packages und Daten
 
-
 ```python=
 import pandas as pd, numpy as np
 import scipy as sp, seaborn as sns
@@ -18,7 +22,6 @@ import statsmodels.api as sm
 import statsmodels.formula.api as smf
 import faraway.utils
 ```
-
 
 ```python=
 import faraway.datasets.savings
@@ -81,7 +84,6 @@ savings.head()
   </tbody>
 </table>
 
-
 # 3. Lineare Regression
 
 ```python=
@@ -89,10 +91,11 @@ lmod = smf.ols('sr ~ pop15 + pop75 + dpi + ddpi', savings).fit()
 ```
 
 # 4. Diagnosis
+
 ### Fehler und Modellannahmen
 
-- **Fehler:** $ε \sim N(0,σ^2 I)$
-- **Modell:** $\mathbb{E}(y)=Xβ$
+- **Fehler:** $\epsilon \sim N(0,\sigma^2 I)$
+- **Modell:** $\mathbb{E}(y)=X\beta$
 
 ### Ungewöhnliche Beobachtungen
 
@@ -102,10 +105,12 @@ lmod = smf.ols('sr ~ pop15 + pop75 + dpi + ddpi', savings).fit()
 ### Diagnosetechniken
 
 - **Grafische Techniken:**
+  
   - Flexibel, aber schwerer zu interpretieren.
   - Visuelle Darstellung der Daten.
 
 - **Numerische Techniken:**
+  
   - Weniger flexibel, aber präziser und objektiver.
   - Statistische Analysen und Berechnungen.
 
@@ -119,57 +124,63 @@ lmod = smf.ols('sr ~ pop15 + pop75 + dpi + ddpi', savings).fit()
 ### Fehleranalyse
 
 - **Residuen**
-  - Beobachtbare Residuen $\hat{ε}$ statt nicht beobachtbarer Fehler $ε$.
-  - $\hat{ε} = y - \hat{y} = (I-H)y = (I-H)ε -> var(\hat{ε}) = var[(I-H)ε] = (I-H)σ^2$.
-  - Annahme: $var(ε) = σ^2 I$.
+  
+  - Beobachtbare Residuen $\hat{\epsilon}$ statt nicht beobachtbarer Fehler $\epsilon$.
+  - $\hat{\epsilon} = y - \hat{y} = (I-H)y = (I-H)\epsilon -> var(\hat{\epsilon}) = var[(I-H)\epsilon] = (I-H)\sigma^2$.
+  - Annahme: $var(\epsilon) = \sigma^2 I$.
 
 - **Unabhängigkeit der Fehler**
+  
   - Fehler sollten sich nicht gegenseitig beeinflussen.
 
 - **Konstante Varianz**
+  
   - Fehlerstreuung bleibt über verschiedene Werte der unabhängigen Variablen konstant.
 
 - **Normalität der Fehler**
+  
   - Fehler folgen einer Normalverteilung.
   - Wichtig für statistische Tests und Modelle.
   - Abweichungen können die Gültigkeit der Analyse beeinträchtigen.
 
 - **Residuen vs. Fehler**
-  - Fehler $ε$ können gleiche Varianz und keine Korrelation haben.
-  - Residuen $\hat{ε}$ haben diese Eigenschaften nicht, aber Diagnosen können dennoch angewendet werden.
+  
+  - Fehler $\epsilon$ können gleiche Varianz und keine Korrelation haben.
+  - Residuen $\hat{\epsilon}$ haben diese Eigenschaften nicht, aber Diagnosen können dennoch angewendet werden.
 
 ### 4.1.1. Konstante Varianz
 
 - **Überprüfung der Annahme**
+  
   - Residuen allein sind nicht ausreichend.
   - Variabilität der Residuen muss auf andere Faktoren geprüft werden.
 
-- **Diagnosewerkzeug: Plot von $\hat{ε}$ gegen $\hat{y}$**
-  - **Homoskedastizität**: Konsistentes und symmetrisches Muster in der Vertikalen ($\hat{ε}$).
+- **Diagnosewerkzeug: Plot von $\hat{\epsilon}$ gegen $\hat{y}$**
+  
+  - **Homoskedastizität**: Konsistentes und symmetrisches Muster in der Vertikalen ($\hat{\epsilon}$).
   - **Heteroskedastizität**: Inkonsistentes oder unsymmetrisches Muster.
   - **Nichtlinearität**: Gekrümmtes oder nicht-lineares Muster zeigt mögliche Modellfehler.
-
 
 ```python=
 plt.scatter(lmod.fittedvalues, lmod.resid)
 plt.ylabel("Residuals"); plt.xlabel("Fitted values"); plt.axhline(0);
 ```
-    
+
 ![png](Figures/savings_9_0.png)
-    
+
 - **Konstante Varianz überprüfen**
   - Kein Grund zur Besorgnis im Plot.
-  - Für genauere Prüfung: $\sqrt{|\hat{ε}|}$ gegen $\hat{y}$ plotten.
+  - Für genauere Prüfung: $\sqrt{|\hat{\epsilon}|}$ gegen $\hat{y}$ plotten.
 
 ```python=
 plt.scatter(lmod.fittedvalues, np.sqrt(abs(lmod.resid)))
 plt.ylabel(r'$\sqrt{|\hat{ε}|}$'); plt.xlabel("Fitted values");
 ```
-    
+
 ![png](Figures/savings_11_0.png)
 
 - **Numerischer Test auf nicht-konstante Varianz**
-  - Regression durchführen, um zu prüfen, ob sich die Größe von ${|\hat{ε}|}$ mit den angepassten Werten ändert.
+  - Regression durchführen, um zu prüfen, ob sich die Größe von ${|\hat{\epsilon}|}$ mit den angepassten Werten ändert.
 
 ```python=
 ddf = pd.DataFrame({'x':lmod.fittedvalues, 'y':np.sqrt(abs(lmod.resid))})
@@ -183,23 +194,26 @@ dmod.sumary()
     n=50 p=2 Residual SD=0.634 R-squared=0.06
 
 - **Test auf nicht-konstante Varianz**
+  
   - Gewichtung und Anpassung der Freiheitsgrade nötig.
   - Steigung nicht signifikant, daher keine klare Varianzabweichung.
   - Testet nur lineare Trends, kann andere Arten von Varianzabweichungen übersehen.
 
 - **Grafische Techniken**
+  
   - Effektiver bei der Aufdeckung versteckter Muster oder Strukturen.
   - Interpretation kann unklar sein, bietet aber Sicherheit über Modellannahmen.
   - Bevorzugt für Diagnose; formale Tests zur Bestätigung von Plot-Indikationen.
 
 - **Beispiel**
+  
   - Residuen gegen Prädiktoren für Spardaten betrachten.
 
 ```python=
 plt.scatter(savings.pop75, lmod.resid)
 plt.xlabel("%pop over 75"); plt.ylabel("Residuals"); plt.axhline(0);
 ```
-    
+
 ![png](Figures/savings_15_0.png)
 
 ```python=
@@ -210,10 +224,12 @@ plt.xlabel("%pop under 15"); plt.ylabel("Residuals"); plt.axhline(0);
 ![png](Figures/savings_16_0.png)
 
 - **Gruppenvergleich im Plot**
+  
   - Zwei Gruppen sichtbar.
   - Varianzen in diesen Gruppen vergleichen und testen.
 
 - **Varianztest**
+  
   - Zwei unabhängige Stichproben aus Normalverteilungen.
   - Teststatistik: Verhältnis der beiden Varianzen prüfen.
 
@@ -232,11 +248,13 @@ fstat = np.var(numres, ddof=1)/np.var(denres, ddof=1)
 ### Modellanpassungen bei Diagnoseproblemen
 
 - **Änderungen bei Diagnoseproblemen**
+  
   - Anpassungen am Modell erforderlich bei Problemen in Diagnoseplots.
   - Nichtlinearität und nicht-konstante Varianz: Variablen transformieren.
   - Nur nicht-konstante Varianz: Gewichtete kleinste Quadrate oder Transformation der Antwortvariablen.
 
 - **Transformation der Antwortvariablen**
+  
   - **Ziel:** Konstante Varianz erreichen.
   - **Vorgehen:** Antwortvariable in Funktion $h(y)$ transformieren.
   - **Wahl von $h(y)$:** Sicherstellen, dass $var(h(y))$ konstant bleibt.
@@ -247,27 +265,31 @@ fstat = np.var(numres, ddof=1)/np.var(denres, ddof=1)
     - $h(y) = \int \frac{dy}{\sqrt{var(y)}} = \int \frac{dy}{sd(y)}$
 
 - **Beispiele für Transformationen**
+  
   - $var(y) \propto (E(y))^2$: $h(y) = \log(y)$
   - $var(y) \propto E(y)$: $h(y) = \sqrt{y}$
 
 - **Alternative Transformationen**
-  - Schwierige Daten: Transformation wie $\log(y + δ)$ bei Werten ≤ 0.
+  
+  - Schwierige Daten: Transformation wie $\log(y + \delta)$ bei Werten ≤ 0.
   - Beachten: Interpretation der Ergebnisse kann komplexer werden.
 
 ### 4.1.2. Normalität
 
 - **Annahme**
+  
   - Tests und Konfidenzintervalle basieren auf normalverteilten Fehlern.
 
 - **Überprüfung der Normalität**
+  
   - **Q-Q-Plot:**
-    - Sortierte Residuen gegen $Φ^{-1} (\frac{i}{n+1})$ für i = 1, …, n plotten.
+    - Sortierte Residuen gegen $\Phi^{-1} (\frac{i}{n+1})$ für i = 1, …, n plotten.
     - Normale Residuen sollten der Linie ungefähr folgen.
 
 ```python=
 sm.qqplot(lmod.resid, line="q");
 ```
-    
+
 ![png](Figures/savings_21_0.png)
 
 - **Normalität prüfen**
@@ -287,14 +309,13 @@ plt.hist(lmod.resid); plt.xlabel("Residuals");
   - **Extreme Fälle**: Hinweis auf langschwänzige Fehler (z.B. Cauchy-Verteilung) oder Ausreißer.
   - **Entfernen von Beobachtungen**: Wenn andere Punkte auffälliger werden, wahrscheinlich langschwänziger Fehler.
 - **Shapiro-Wilk-Test**
-    - **Formaler Test auf Normalität**
-      - **Nullhypothese**: Residuen sind normal.
-      - Nicht ablehnen der Nullhypothese bedeutet mögliche Normalität.
-    - **Verwendung**
-      - **Mit Q-Q-Plot**: Beste Ergebnisse.
-      - **Große Datensätze**: Kleine Abweichungen erkennbar, aber nicht signifikant.
-      - **Kleine Datensätze**: Test erkennt Abweichungen möglicherweise nicht gut.
-
+  - **Formaler Test auf Normalität**
+    - **Nullhypothese**: Residuen sind normal.
+    - Nicht ablehnen der Nullhypothese bedeutet mögliche Normalität.
+  - **Verwendung**
+    - **Mit Q-Q-Plot**: Beste Ergebnisse.
+    - **Große Datensätze**: Kleine Abweichungen erkennbar, aber nicht signifikant.
+    - **Kleine Datensätze**: Test erkennt Abweichungen möglicherweise nicht gut.
 
 ```python=
 sp.stats.shapiro(lmod.resid)
@@ -303,26 +324,31 @@ sp.stats.shapiro(lmod.resid)
     ShapiroResult(statistic=0.986984385973169, pvalue=0.8523961877568906)
 
 - **Umgang mit Nicht-Normalität in statistischen Modellen**
-    - **Effekte und Lösungen**
-      - Nicht-normal verteilte Fehler: Kleinste-Quadrate-Schätzungen sind nicht optimal, aber linear und unverzerrt.
-      - Robustere Schätzer könnten besser funktionieren.
-      - Tests und Konfidenzintervalle werden mit größerer Stichprobe durch das zentrale Grenzwerttheorem genauer.
-
-    - **Lösungsansätze bei Nicht-Normalität**
-      - **Kurzschwänzige Verteilungen**: Geringer Einfluss, oft vernachlässigbar.
-      - **Schiefe Verteilungen**: Transformation der Antwortvariable.
-      - **Langschwänzige Verteilungen**: 
-        - Nicht-Normalität akzeptieren und andere Verteilungen verwenden.
-        - Resampling-Methoden wie Bootstrap oder Permutationstests.
-        - Robuste Methoden nutzen, die Ausreißer weniger gewichten.
-
-    - **Diagnosetests und Modellanpassungen**
-      - Andere Tests können Modelländerungen erfordern.
-      - Probleme wie Nichtlinearität und nicht-konstante Varianz zuerst beheben, um Nicht-Normalität zu vermeiden.
+  
+  - **Effekte und Lösungen**
+    
+    - Nicht-normal verteilte Fehler: Kleinste-Quadrate-Schätzungen sind nicht optimal, aber linear und unverzerrt.
+    - Robustere Schätzer könnten besser funktionieren.
+    - Tests und Konfidenzintervalle werden mit größerer Stichprobe durch das zentrale Grenzwerttheorem genauer.
+  
+  - **Lösungsansätze bei Nicht-Normalität**
+    
+    - **Kurzschwänzige Verteilungen**: Geringer Einfluss, oft vernachlässigbar.
+    - **Schiefe Verteilungen**: Transformation der Antwortvariable.
+    - **Langschwänzige Verteilungen**: 
+      - Nicht-Normalität akzeptieren und andere Verteilungen verwenden.
+      - Resampling-Methoden wie Bootstrap oder Permutationstests.
+      - Robuste Methoden nutzen, die Ausreißer weniger gewichten.
+  
+  - **Diagnosetests und Modellanpassungen**
+    
+    - Andere Tests können Modelländerungen erfordern.
+    - Probleme wie Nichtlinearität und nicht-konstante Varianz zuerst beheben, um Nicht-Normalität zu vermeiden.
 
 ### 4.1.3. Korrigierte Fehler
 
 - **Durbin-Watson-Test**
+  
   - Beurteilt die Signifikanz der Korrelation in Fehlern.
   - **Nullhypothese**: Fehler sind unkorreliert.
   - **Teststatistik**:
@@ -330,10 +356,10 @@ sp.stats.shapiro(lmod.resid)
     - Wert von 2 unter Nullhypothese erwartet; Wert < 1 zeigt mögliches Problem.
 
 - **Serielle Korrelation**
+  
   - Kann durch fehlende Kovariaten im Modell entstehen.
   - Beispiel: Quadratische Beziehung zwischen Prädiktor und Antwort, aber nur linearer Term im Modell.
   - Lösung: Fehlenden quadratischen Term ins Modell aufnehmen, um serielle Korrelation zu beheben.
-
 
 ```python=
 sm.stats.stattools.durbin_watson(lmod.resid)
@@ -344,13 +370,16 @@ sm.stats.stattools.durbin_watson(lmod.resid)
 ## 4.2. Ungewöhnliche Beobachtungen
 
 - **Ausreißer**
+  
   - Passen nicht gut ins Modell.
 
 - **Einflussreiche Beobachtungen**
+  
   - Beeinflussen die Modellanpassung stark.
   - Können auch Ausreißer sein.
 
 - **Hebelpunkte**
+  
   - Extrem in Prädiktor-Raum.
   - Potenzieller Einfluss auf die Modellanpassung.
   - Identifikation wichtig, Umgang schwierig.
@@ -358,21 +387,23 @@ sm.stats.stattools.durbin_watson(lmod.resid)
 ### 4.2.1. Hebelwirkung
 
 - **Hebelwerte ($h_i$)**
+  
   - $h_i = H_{ii}$ als diagnostisches Werkzeug.
-  - **Varianz:** $var(\hat{ε}_i) = \sigma^2 (1-h_i)$
-    - Hohe $h_i$: $var(\hat{ε}_i)$ klein, $\hat{y}_i$ näher an $y_i$.
+  - **Varianz:** $var(\hat{\epsilon}_i) = \sigma^2 (1-h_i)$
+    - Hohe $h_i$: $var(\hat{\epsilon}_i)$ klein, $\hat{y}_i$ näher an $y_i$.
     - Ursachen: Extreme Werte in Prädiktorvariablen (X-Raum).
-    - Zusammenhang mit quadratischer Mahalanobis-Distanz: $\left(x-\bar{x}\right)^T{\hat{\mathrm{\Sigma}}}^{-1}\left(x-\bar{x}\right)$.
+    - Zusammenhang mit quadratischer Mahalanobis-Distanz: $(x-\bar{x})^T{\hat{\mathrm{\Sigma}}}^{-1}(x-\bar{x})$.
     - $h_i$ hängt nur von X ab, nicht von y.
     - Durchschnitt: $\sum_i h_i = p$, Durchschnittswert $h_i = p/n$. Werte > 2p/n prüfen.
 
 - **Identifikation großer Hebelwerte**
+  
   - Keine Annahme über Verteilung.
   - **Halbnormal-Plot:**
     - Daten gegen positive Normalquantile plotten.
-    - Halbnormal-Plot kann für $|\hat{ε}|$ verwendet werden.
+    - Halbnormal-Plot kann für $|\hat{\epsilon}|$ verwendet werden.
     - Daten sortieren: $h_{[1]} \leq \cdots \leq h_{[n]}$.
-    - Positive Normalquantile berechnen: $u_i = \Phi^{-1}\left(\frac{n+i}{2n+1}\right)$.
+    - Positive Normalquantile berechnen: $u_i = \Phi^{-1}(\frac{n+i}{2n+1})$.
     - Plot: $h_{[i]}$ (x-Achse) gegen $u_i$ (y-Achse).
     - Ziel: Ausreißer identifizieren, die deutlich vom Rest abweichen.
 
@@ -408,16 +439,16 @@ plt.annotate("Libya",(2.1,0.53)); plt.annotate("USA", (1.9,0.33));
 ![png](Figures/savings_33_0.png)
 
 - **Standardisierte Residuen**
-    - **Varianz der Residuen**: $var(\hat{ε}_i) = \sigma^2 (1-h_i)$
-      - **Formel**: $r_i=\frac{{\hat{\varepsilon}}_i}{\hat{\sigma}\sqrt{1-h_i}}$
-      - **Bezeichnung**: Standardisierte Residuen (Pearson-Residuen)
-    - **Vorteile**
-      - Bevorzugt in Residuenplots wegen angeglichener Varianz.
-      - Bei korrekten Modellannahmen gilt: $var(r_i) = 1$
-      - Korrelation $corr(r_i, r_j)$ tendiert gegen Null.
-    - **Einschränkungen**
-      - Standardisierung korrigiert nur natürliche nichtkonstante Varianz.
-      - Bei heteroskedastischen Fehlern nicht effektiv.
+  - **Varianz der Residuen**: $var(\hat{\epsilon}_i) = \sigma^2 (1-h_i)$
+    - **Formel**: $r_i=\frac{{\hat{\varepsilon}}_i}{\hat{\sigma}\sqrt{1-h_i}}$
+    - **Bezeichnung**: Standardisierte Residuen (Pearson-Residuen)
+  - **Vorteile**
+    - Bevorzugt in Residuenplots wegen angeglichener Varianz.
+    - Bei korrekten Modellannahmen gilt: $var(r_i) = 1$
+    - Korrelation $corr(r_i, r_j)$ tendiert gegen Null.
+  - **Einschränkungen**
+    - Standardisierung korrigiert nur natürliche nichtkonstante Varianz.
+    - Bei heteroskedastischen Fehlern nicht effektiv.
 
 ```python=
 # lmod.resid_pearson: Divides only by σ^, no leverage component.
@@ -425,7 +456,7 @@ plt.annotate("Libya",(2.1,0.53)); plt.annotate("USA", (1.9,0.33));
 rstandard = diagv.resid_studentized_internal
 sm.qqplot(rstandard);
 ```
- 
+
 ![png](Figures/savings_35_0.png)
 
 - **Standardisierte Residuen**
@@ -437,38 +468,50 @@ sm.qqplot(rstandard);
   - Unterschiede zu rohen Residuen meist nur bei großer Hebelwirkung sichtbar.
 
 ### 4.2.2. Ausreißer
+
 ### Ausreißer
 
 - **Definition**
+  
   - Datenpunkt, der sich von anderen abhebt.
   - Kann die Datenanpassung beeinflussen.
   - Test unterscheidet echte Ausreißer von großen Residuen.
 
 - **Beispiel**
+  
   - Punkt mit großem Residuum, beeinflusst andere Residuen.
   - Wichtig für die Analyse, da sie die Regressionslinie verzerren können.
 
 ![png](Figures/savings_1.png)
 
 - **Erkennung von Ausreißern**
+  
   - Punkt (i) ausschließen und Schätzungen neu berechnen:
-    - ${\hat{y}}_{\left(i\right)}=x_i^\prime{\hat{\beta}}_{\left(i\right)}$
-    - Großer Unterschied ${\hat{y}}_{\left(i\right)}-y_i$ zeigt Ausreißer.
+    - ${\hat{y}}_{(i)}=x_i^\prime{\hat{\beta}}_{(i)}$
+    - Großer Unterschied ${\hat{y}}_{(i)}-y_i$ zeigt Ausreißer.
   - **Skalierung**
-    - Varianz: $\widehat{var}{\left(y_i-{\hat{y}}_{\left(i\right)}\right)}={\hat{\sigma}}_{\left(i\right)}^2\left(1+x_i^\prime\left(X_{\left(i\right)}^\prime X_{\left(i\right)}\right)^{-1}x_i\right)$
-    - Studentisierte Residuen: $t_i=\frac{y_i-{\hat{y}}_{\left(i\right)}}{{\hat{\sigma}}_{(i)}\sqrt{1+x_i^\prime\left(X_{\left(i\right)}^\prime X_{\left(i\right)}\right)^{-1}x_i}}$
-    - Vereinfachte Berechnung: $t_i=\frac{{\hat{\varepsilon}}_i}{{\hat{\sigma}}_{(i)}\sqrt{1-h_i}}=r_i\ \left(\frac{n-p-1}{n-p-r_i^2}\right)^\frac{1}{2}\ \sim t_{n-p-1}$
+    - Varianz: $\widehat{var}{(y_i-{\hat{y}}_{(i)})}={\hat{\sigma}}_{(i)}^2(1+x_i^\prime(X_{(i)}^\prime X_{(i)})^{-1}x_i)$
+    - Studentisierte Residuen: $t_i=\frac{y_i-{\hat{y}}_{(i)}}{{\hat{\sigma}}_{(i)}\sqrt{1+x_i^\prime(X_{(i)}^\prime X_{(i)})^{-1}x_i}}$
+    - Vereinfachte Berechnung: $t_i=\frac{{\hat{\varepsilon}}_i}{{\hat{\sigma}}_{(i)}\sqrt{1-h_i}}=r_i\ (\frac{n-p-1}{n-p-r_i^2})^\frac{1}{2}\ \sim t_{n-p-1}$
 
 - Da $t_i \sim t_{n-p-1}$, können wir einen p-Wert berechnen, um zu prüfen, ob Fall (i) ein Ausreißer ist.
+  
   - Funktioniert gut bei einem vorgewählten Fall.
+
 - Bei (n = 100) und Testen aller Fälle:
+  
   - Erwartung: ca. fünf Ausreißer bei 5% Signifikanzniveau.
+
 - Auch bei explizitem Testen von ein oder zwei großen ($t_i$) Werten:
+  
   - Implizites Testen aller Fälle, um große Residuen zu identifizieren.
+
 - Anpassung des Testniveaus notwendig:
+  
   - Vermeidung zu vieler identifizierter Ausreißer.
 
 - Angenommen, wir möchten einen Test mit Signifikanzniveau ($\alpha$) durchführen.
+  
   - Wahrscheinlichkeit, dass alle Tests akzeptiert werden: ($1 - P(\text{mindestens ein Test lehnt ab}) \approx 1 - n\alpha$).
   - Für ein Gesamt-Signifikanzniveau ($\alpha$) sollten wir für jeden Test ein Niveau ($\alpha/n$) verwenden.
     - Dies wird als Bonferroni-Korrektur bezeichnet.
@@ -663,23 +706,33 @@ lmodj.sumary()
 ## 4.3. Modellstruktur
 
 - Plots der Residuen $\hat{\varepsilon}$ gegen:
+  
   - Vorhergesagte Werte $\hat{y}$
   - Prädiktorvariablen $x_i$
+
 - Nutzen:
+  
   - Überprüfung der Annahmen über Fehler im Modell.
   - Hinweise auf mögliche Transformationen der Variablen zur Verbesserung der Modellstruktur.
 
 - Wir können Diagramme von y gegen jedes $x_i$ erstellen.
+
 - Die Beziehung zwischen einem Prädiktor und der Antwortvariable kann von anderen Prädiktoren beeinflusst werden.
+
 - Um den Effekt eines Prädiktors ($x_i$) auf die Antwortvariable (y) zu isolieren, verwenden wir partielle Regressionsdiagramme:
+  
   - Zuerst sagen wir y mit allen Prädiktoren außer $x_i$ voraus, um die Residuen ($\hat{\delta}$) zu erhalten.
   - Dann regredieren wir $x_i$ auf alle anderen Prädiktoren, um die Residuen ($\hat{\gamma}$) zu erhalten.
   - Das Diagramm wird erstellt, indem $\hat{\delta}$ gegen $\hat{\gamma}$ geplottet wird. So erkennen wir nichtlineare Beziehungen, Ausreißer und einflussreiche Beobachtungen.
 
 - Ein partielles Regressionsdiagramm (Added Variable Plot) hilft, Regressionskoeffizienten zu verstehen.
+
 - Zeigt die Beziehung zwischen einem Prädiktor und der Antwortvariable, nach Entfernen der Effekte anderer Prädiktoren.
+
 - In der multiplen Regression ist es schwierig, die Beziehung zu visualisieren wegen der vielen Prädiktoren.
+
 - Das partielle Regressionsdiagramm vereinfacht dies, indem es sich auf einen Prädiktor konzentriert.
+
 - Es isoliert die Effekte anderer Prädiktoren und zeigt den individuellen Beitrag jedes Prädiktors zur Antwortvariable.
 
 ```python=
@@ -695,12 +748,15 @@ plt.plot([-10, 8], [-10*lmod.params.iloc[1], 8*lmod.params.iloc[1]]);
 ![png](Figures/savings_54_0.png)
 
 - Die Funktion `np.polyfit(m, d, deg=1)` wird verwendet, um eine Polynomapproximation (lineare Regression in diesem Fall) auf die Datenpunkte (m, d) durchzuführen.
+
 - Hier ist eine detaillierte Aufschlüsselung:
-    - `m`: Array der x-Koordinaten (unabhängige Variable).
-    - `d`: Array der y-Koordinaten (abhängige Variable).
-    - `deg=1`: Grad des zu fitten Polynoms. `deg=1` bedeutet eine lineare Anpassung (gerade Linie).
+  
+  - `m`: Array der x-Koordinaten (unabhängige Variable).
+  - `d`: Array der y-Koordinaten (abhängige Variable).
+  - `deg=1`: Grad des zu fitten Polynoms. `deg=1` bedeutet eine lineare Anpassung (gerade Linie).
 
 - Die Funktion gibt die Koeffizienten des Polynoms zurück, beginnend mit dem höchsten Grad.
+
 - Für eine lineare Anpassung werden zwei Koeffizienten zurückgegeben: die Steigung und der Achsenabschnitt.
 
 ```python=
@@ -740,7 +796,6 @@ smf.ols('sr ~ pop15 + pop75 + dpi + ddpi', savings[savings.pop15 > 35]).fit().su
     dpi        0.000  0.005    0.08  0.9339
     ddpi       0.395  0.290    1.36  0.1896
     n=23 p=5 Residual SD=4.454 R-squared=0.16
-
 
 ```python=
 smf.ols('sr ~ pop15 + pop75 + dpi + ddpi', savings[savings.pop15 < 35]).fit().sumary()
@@ -847,8 +902,8 @@ sns.lmplot(x='ddpi', y='sr', data=savings, col='age');
 - Skalierungsänderungen verbessern die numerische Stabilität und verhindern Berechnungsfehler.
 - Reskalierung beeinflusst nicht statistische Tests wie t-Tests, F-Tests, Varianz und R-Quadrat.
 - Skalierung zu Standardwerten (Mittelwert 0, Varianz 1) vereinfacht Vergleiche und vermeidet numerische Probleme.
-- Bei Reskalierung von $x_i$ als $ \frac{x_i + a}{b} $ bleiben t-Tests, F-Tests, $ \sigma^2 $ und $ R^2 $ unverändert, aber die geschätzten Koeffizienten $ \hat{\beta}_i $ werden skaliert.
-- Reskalierung von $y$ lässt t-Tests, F-Tests und $ R^2 $ unverändert, aber die geschätzten Koeffizienten $ \hat{\beta} $ und die geschätzte Standardabweichung $ \hat{\sigma} $ werden skaliert.
+- Bei Reskalierung von $x_i$ als $\frac{x_i + a}{b}$ bleiben t-Tests, F-Tests, $\sigma^2$ und $R^2$ unverändert, aber die geschätzten Koeffizienten $\hat{\beta}_i$ werden skaliert.
+- Reskalierung von y lässt t-Tests, F-Tests und $R^2$ unverändert, aber die geschätzten Koeffizienten $\hat{\beta}$ und die geschätzte Standardabweichung $\hat{\sigma}$ werden skaliert.
 - Standardisierung von Variablen (Mittelwert 0, Varianz 1) hat Vorteile:
   - **Vergleichbare Skala:** Alle Variablen sind auf gleicher Skala, was Vergleiche erleichtert.
   - **Teilkorrelation:** Regressionskoeffizienten zwischen -1 und 1 zeigen Stärke und Richtung der Beziehungen.
@@ -901,7 +956,6 @@ lmod.sumary()
     
     n=50 p=5 Residual SD=0.857 R-squared=0.34
 
-
 - Wenn die Prädiktoren vergleichbare Skalen haben, ist es hilfreich, einen Plot der Schätzungen mit Konfidenzintervallen zu erstellen.
 
 ```python=
@@ -949,6 +1003,7 @@ smf.ols('sr ~ age + dpis + ddpis', Figures/savings_sclDF).fit().sumary()
 # 7. Transformation
 
 - Log-Transformation der Antwortvariable:
+  
   - $\log{\hat{y}}={\hat{\beta}}_0+{\hat{\beta}}_1x_1+\ldots+{\hat{\beta}}_px_p$
   - $\hat{y}=e^{{\hat{\beta}}_0}e^{{\hat{\beta}}_1x_1}\ldots e^{{\hat{\beta}}_px_p}$
   - Erhöhung von $x_1$ um eins multipliziert die vorhergesagte Antwort um $e^{\hat{\beta}_1}$.
@@ -956,10 +1011,11 @@ smf.ols('sr ~ age + dpis + ddpis', Figures/savings_sclDF).fit().sumary()
   - Beispiel: $\beta_1 = 0.09$ bedeutet, Erhöhung von $x_1$ um eins erhöht $\log(y)$ um 0.09, oder y um 9%.
 
 - Box-Cox-Methode transformiert positive Antworten $y$ zu $g_\lambda(y)$:
+  
   - $g_\lambda(y) = \begin{cases} \frac{y^\lambda - 1}{\lambda}, & \lambda \neq 0 \\ \log{y}, & \lambda = 0 \end{cases}$
   - Für $y > 0$ ändert sich $g_\lambda(y)$ gleichmäßig mit $\lambda$.
   - Optimales $\lambda$ wird durch Maximum-Likelihood bestimmt, bei dem Modellfehler normalverteilt sind:
-    - $L(\lambda) = -\frac{n}{2} \log{\left(\frac{RSS_\lambda}{n}\right)} + (\lambda - 1) \sum \log{y_i}$
+    - $L(\lambda) = -\frac{n}{2} \log{(\frac{RSS_\lambda}{n})} + (\lambda - 1) \sum \log{y_i}$
       - RSS$_\lambda$ ist die Residuenquadratsumme für $g_\lambda(y)$.
       - Beste $\hat{\lambda}$ wird numerisch maximiert.
   - Für Vorhersagen kann $y^\lambda$ als Antwort verwendet werden.
@@ -967,13 +1023,14 @@ smf.ols('sr ~ age + dpis + ddpis', Figures/savings_sclDF).fit().sumary()
   - Für Verständlichkeit kann $\lambda$ gerundet werden, z.B. $\hat{\lambda} = 0.46$ zu $\lambda = 0.5$ für $\sqrt{y}$.
 
 - Transformation der Antwortvariable sollte nur bei Notwendigkeit erfolgen.
-- Überprüfung durch Konstruktion eines Konfidenzintervalls für $\lambda$:
-  - $100(1-\alpha)\%$ Konfidenzintervall für $\lambda$:
-    - $\{\lambda:L\left(\lambda\right)>L\left(\hat{\lambda}\right)-1/2\chi_{1,1-\alpha}^2\}$
-  - Intervall basiert auf Likelihood-Ratio-Test für $H_0: \lambda = \lambda_0$.
-  - Teststatistik: $2\left(L\left(\hat{\lambda}\right) - L\left(\lambda_0\right)\right)$ folgt $\chi_1^2$-Verteilung.
-  - Konfidenzintervall zeigt, wie stark $\lambda$ für bessere Interpretierbarkeit gerundet werden kann.
 
+- Überprüfung durch Konstruktion eines Konfidenzintervalls für $\lambda$:
+  
+  - $100(1-\alpha)\%$ Konfidenzintervall für $\lambda$:
+    - $\{\lambda:L(\lambda)>L(\hat{\lambda})-1/2\chi_{1,1-\alpha}^2\}$
+  - Intervall basiert auf Likelihood-Ratio-Test für $H_0: \lambda = \lambda_0$.
+  - Teststatistik: $2(L(\hat{\lambda}) - L(\lambda_0))$ folgt $\chi_1^2$-Verteilung.
+  - Konfidenzintervall zeigt, wie stark $\lambda$ für bessere Interpretierbarkeit gerundet werden kann.
 
 ```python=
 # Extracts the exogenous variables matrix X
@@ -1037,7 +1094,9 @@ plt.plot([35, 48], [lmod2.params.iat[0] + lmod2.params.iat[1] * 35,
 ![png](Figures/savings_86_0.png)
 
 - Problem bei separaten Modellen: keine Verbindung am Trennpunkt.
+
 - Für einen fließenden Übergang verwenden wir Knickpunkt-Regression:
+  
   - Zwei neue Variablen:
     - $B_l(x) = \begin{cases} 
         c - x & \text{wenn } x < c \\ 
@@ -1049,11 +1108,17 @@ plt.plot([35, 48], [lmod2.params.iat[0] + lmod2.params.iat[1] * 35,
       \end{cases}$
 
 - Punkt ‘c’ teilt die Daten in zwei Gruppen und erzeugt die Variablen $B_l$ und $B_r$.
+
 - Diese Variablen bilden eine erste Ordnung Spline-Basis mit einem Knoten bei ‘c’, was eine bessere Anpassung ermöglicht.
+
 - Diese Variablen werden oft als Hockeyschläger-Funktionen bezeichnet.
+
 - Das Modell hat die Form $y=\beta_0+\beta_1B_l(x)+\beta_2B_r(x)+\varepsilon$ und wird durch reguläre Regressionsmethoden angepasst.
+
 - Die beiden Segmente des Modells treffen sich bei Punkt ‘c’, was Kontinuität gewährleistet.
+
 - Im Gegensatz zum vorherigen Ansatz verwendet dieses Modell nur drei Parameter, indem es die Glätte bei Punkt ‘c’ sicherstellt.
+
 - Der Achsenabschnitt dieses Modells ist der Wert des Ergebnisses, wo die beiden Teile sich treffen.
 
 ```python=
