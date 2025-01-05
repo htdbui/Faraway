@@ -155,7 +155,7 @@ plt.scatter(lmod.fittedvalues, lmod.resid)
 plt.ylabel("Residuals"); plt.xlabel("Fitted values"); plt.axhline(0);
 ```
     
-![png](savings_9_0.png)
+![png](Figures/savings_9_0.png)
     
 - **Konstante Varianz überprüfen**
   - Kein Grund zur Besorgnis im Plot.
@@ -166,7 +166,7 @@ plt.scatter(lmod.fittedvalues, np.sqrt(abs(lmod.resid)))
 plt.ylabel(r'$\sqrt{|\hat{ε}|}$'); plt.xlabel("Fitted values");
 ```
     
-![png](savings_11_0.png)
+![png](Figures/savings_11_0.png)
 
 - **Numerischer Test auf nicht-konstante Varianz**
   - Regression durchführen, um zu prüfen, ob sich die Größe von ${|\hat{ε}|}$ mit den angepassten Werten ändert.
@@ -200,14 +200,14 @@ plt.scatter(savings.pop75, lmod.resid)
 plt.xlabel("%pop over 75"); plt.ylabel("Residuals"); plt.axhline(0);
 ```
     
-![png](savings_15_0.png)
+![png](Figures/savings_15_0.png)
 
 ```python=
 plt.scatter(savings.pop15, lmod.resid)
 plt.xlabel("%pop under 15"); plt.ylabel("Residuals"); plt.axhline(0);
 ```
 
-![png](savings_16_0.png)
+![png](Figures/savings_16_0.png)
 
 - **Gruppenvergleich im Plot**
   - Zwei Gruppen sichtbar.
@@ -268,7 +268,7 @@ fstat = np.var(numres, ddof=1)/np.var(denres, ddof=1)
 sm.qqplot(lmod.resid, line="q");
 ```
     
-![png](savings_21_0.png)
+![png](Figures/savings_21_0.png)
 
 - **Normalität prüfen**
   - **Ungeeignete Methoden**
@@ -280,7 +280,7 @@ sm.qqplot(lmod.resid, line="q");
 plt.hist(lmod.resid); plt.xlabel("Residuals");
 ```
 
-![png](savings_23_0.png)
+![png](Figures/savings_23_0.png)
 
 - **Q-Q-Plots**
   - **Herausforderungen**: Schwierige Identifikation von Problemen.
@@ -405,7 +405,7 @@ plt.scatter(halfq, np.sort(hatv))
 plt.annotate("Libya",(2.1,0.53)); plt.annotate("USA", (1.9,0.33));
 ```
 
-![png](savings_33_0.png)
+![png](Figures/savings_33_0.png)
 
 - **Standardisierte Residuen**
     - **Varianz der Residuen**: $var(\hat{ε}_i) = \sigma^2 (1-h_i)$
@@ -426,7 +426,7 @@ rstandard = diagv.resid_studentized_internal
 sm.qqplot(rstandard);
 ```
  
-![png](savings_35_0.png)
+![png](Figures/savings_35_0.png)
 
 - **Standardisierte Residuen**
   - Punkte folgen der Linie (y = x) bei Normalität.
@@ -448,7 +448,7 @@ sm.qqplot(rstandard);
   - Punkt mit großem Residuum, beeinflusst andere Residuen.
   - Wichtig für die Analyse, da sie die Regressionslinie verzerren können.
 
-![png](savings_1.png)
+![png](Figures/savings_1.png)
 
 - **Erkennung von Ausreißern**
   - Punkt (i) ausschließen und Schätzungen neu berechnen:
@@ -554,7 +554,7 @@ halfq = sp.stats.norm.ppf((n+ix)/(2*n+1)),
 plt.scatter(halfq, np.sort(cooks));
 ```
 
-![png](savings_44_0.png)
+![png](Figures/savings_44_0.png)
 
 ```python=
 # The largest five values of Cook statistics
@@ -634,7 +634,7 @@ ix = 22; plt.annotate(savings.index[ix], (ix, p15d[ix]))
 ix = 48; plt.annotate(savings.index[ix], (ix, p15d[ix]));
 ```
 
-![png](savings_49_0.png)
+![png](Figures/savings_49_0.png)
 
 - Änderung des zweiten Parameters (~popI5) bei Ausschluss eines Falls:
   - Japan fällt besonders auf.
@@ -692,7 +692,7 @@ plt.xlabel("pop15 residuals"); plt.ylabel("sr residuals")
 plt.plot([-10, 8], [-10*lmod.params.iloc[1], 8*lmod.params.iloc[1]]);
 ```
 
-![png](savings_54_0.png)
+![png](Figures/savings_54_0.png)
 
 - Die Funktion `np.polyfit(m, d, deg=1)` wird verwendet, um eine Polynomapproximation (lineare Regression in diesem Fall) auf die Datenpunkte (m, d) durchzuführen.
 - Hier ist eine detaillierte Aufschlüsselung:
@@ -724,7 +724,7 @@ plt.xlabel("pop15"); plt.ylabel("partial residuals")
 plt.plot([20,50], [20*lmod.params.iat[1], 50*lmod.params.iat[1]]);
 ```
 
-![png](savings_58_0.png)
+![png](Figures/savings_58_0.png)
 
 - Das Diagramm zeigt zwei Gruppen.
 - Dies deutet auf unterschiedliche Beziehungen in diesen Gruppen hin.
@@ -809,7 +809,7 @@ savings['age'] = np.where(savings.pop15 > 35, 'young', 'old')
 sns.lmplot(x='ddpi', y='sr', data=savings, hue='age', facet_kws={"legend_out": False});
 ```
 
-![png](savings_64_0.png)
+![png](Figures/savings_64_0.png)
 
 - `sns.lmplot`: Seaborn-Funktion für lineare Regression.
 - `x='ddpi'`: Spalte ‘ddpi’ für die x-Achse.
@@ -822,7 +822,7 @@ sns.lmplot(x='ddpi', y='sr', data=savings, hue='age', facet_kws={"legend_out": F
 sns.lmplot(x='ddpi', y='sr', data=savings, col='age');
 ```
 
-![png](savings_66_0.png)
+![png](Figures/savings_66_0.png)
 
 - Die Plots zeigen zwei Wege, die Statusvariable anhand des Anteils der Bevölkerung unter 15 zu unterscheiden.
 - Die zweite Plotreihe ist effektiver.
@@ -857,9 +857,9 @@ sns.lmplot(x='ddpi', y='sr', data=savings, col='age');
 
 ```python=
 # Reload the data again
-savings_sclDF = faraway.datasets.savings.load()
+Figures/savings_sclDF = faraway.datasets.savings.load()
 # Run a regression
-lmod = smf.ols('sr ~ pop15 + pop75 + dpi + ddpi', savings_sclDF).fit()
+lmod = smf.ols('sr ~ pop15 + pop75 + dpi + ddpi', Figures/savings_sclDF).fit()
 lmod.sumary()
 ```
 
@@ -873,7 +873,7 @@ lmod.sumary()
 
 ```python=
 # Change the scale
-lmod = smf.ols('sr ~ pop15 + pop75 + I(dpi/1000) + ddpi', savings_sclDF).fit()
+lmod = smf.ols('sr ~ pop15 + pop75 + I(dpi/1000) + ddpi', Figures/savings_sclDF).fit()
 lmod.sumary()
 ```
 
@@ -887,7 +887,7 @@ lmod.sumary()
 
 ```python=
 # Standardization
-scsav = savings_sclDF.apply(sp.stats.zscore)
+scsav = Figures/savings_sclDF.apply(sp.stats.zscore)
 lmod = smf.ols('sr ~ pop15 + pop75 + dpi + ddpi', scsav).fit()
 lmod.sumary()
 ```
@@ -917,7 +917,7 @@ ax.set_yticklabels(edf.index)
 ax.axvline(0);
 ```
 
-![png](savings_74_0.png)
+![png](Figures/savings_74_0.png)
 
 - Bei binären Prädiktoren ist die Skalierung anders.
 - Ein binärer Prädiktor (0 und 1, gleiche Wahrscheinlichkeit) hat eine Standardabweichung von 0,5.
@@ -926,11 +926,11 @@ ax.axvline(0);
 
 ```python=
 # Create a age column
-savings_sclDF['age'] = np.where(savings_sclDF.pop15 > 35, 0, 1)
+Figures/savings_sclDF['age'] = np.where(Figures/savings_sclDF.pop15 > 35, 0, 1)
 # younger countries are coded as 0 and older countries as 1
-savings_sclDF['dpis'] = sp.stats.zscore(savings_sclDF.dpi)/2
-savings_sclDF['ddpis'] = sp.stats.zscore(savings_sclDF.ddpi)/2
-smf.ols('sr ~ age + dpis + ddpis', savings_sclDF).fit().sumary()
+Figures/savings_sclDF['dpis'] = sp.stats.zscore(Figures/savings_sclDF.dpi)/2
+Figures/savings_sclDF['ddpis'] = sp.stats.zscore(Figures/savings_sclDF.ddpi)/2
+smf.ols('sr ~ age + dpis + ddpis', Figures/savings_sclDF).fit().sumary()
 ```
 
                coefs stderr tvalues pvalues
@@ -1003,7 +1003,7 @@ ax.hlines(cicut, xmin=rlam[0], xmax=rlam[-1], linestyle='dashed')
 ax.vlines([rlam[0], rlam[-1]], ymin=min(llk), ymax=cicut, linestyle='dashed');
 ```
 
-![png](savings_82_0.png)
+![png](Figures/savings_82_0.png)
 
 - Berechnungsbereich: [0.5, 1.5]
 - Ein größerer Bereich könnte notwendig sein, um das Maximum und das Konfidenzintervall zu erfassen.
@@ -1034,7 +1034,7 @@ plt.plot([35, 48], [lmod2.params.iat[0] + lmod2.params.iat[1] * 35,
                     lmod2.params.iat[0] + lmod2.params.iat[1] * 48], 'k-');
 ```
 
-![png](savings_86_0.png)
+![png](Figures/savings_86_0.png)
 
 - Problem bei separaten Modellen: keine Verbindung am Trennpunkt.
 - Für einen fließenden Übergang verwenden wir Knickpunkt-Regression:
@@ -1077,8 +1077,8 @@ plt.xlabel('Population under 15'); plt.ylabel('Savings rate')
 # Add a vertical dashed line at pop15 = 35
 plt.axvline(35, linestyle='dashed');
 ```
-    
-![png](savings_88_0.png)
+
+![png](Figures/savings_88_0.png)
 
 - Welches Modell ist besser?
   - Bei hohen ‘pop15’-Werten ändert sich die Steigung durch Glättung.
