@@ -1,3 +1,0 @@
-1. Describe the data
-2. Load packages and data
-3. False Discovery Rate
