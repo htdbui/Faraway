@@ -1,7 +1,10 @@
 ---
+
 title: " Savings"
 author: "db"
+
 ---
+
 # 1. Datenbeschreibung
 
 - **Beobachtungen**: 50
@@ -166,7 +169,7 @@ plt.scatter(lmod.fittedvalues, lmod.resid)
 plt.ylabel("Residuals"); plt.xlabel("Fitted values"); plt.axhline(0);
 ```
 
-![png](Figures/savings_9_0.png)
+![](Figures/savings_9_0.png)
 
 - **Konstante Varianz überprüfen**
   - Kein Grund zur Besorgnis im Plot.
