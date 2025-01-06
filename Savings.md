@@ -130,21 +130,21 @@ lmod = smf.ols('sr ~ pop15 + pop75 + dpi + ddpi', savings).fit()
   
   - Beobachtbare Residuen $\hat{\epsilon}$ statt nicht beobachtbarer Fehler $\epsilon$.
   - $\hat{\epsilon} = y - \hat{y} = (I-H)y = (I-H)\epsilon -> var(\hat{\epsilon}) = var[(I-H)\epsilon] = (I-H)\sigma^2$.
+  
   - Annahme: $var(\epsilon) = \sigma^2 I$.
+	- **Unabhängigkeit der Fehler**
+	  
+	  - Fehler sollten sich nicht gegenseitig beeinflussen.
 
-- **Unabhängigkeit der Fehler**
-  
-  - Fehler sollten sich nicht gegenseitig beeinflussen.
+	- **Konstante Varianz**
+	  
+	  - Fehlerstreuung bleibt über verschiedene Werte der unabhängigen Variablen konstant.
 
-- **Konstante Varianz**
-  
-  - Fehlerstreuung bleibt über verschiedene Werte der unabhängigen Variablen konstant.
-
-- **Normalität der Fehler**
-  
-  - Fehler folgen einer Normalverteilung.
-  - Wichtig für statistische Tests und Modelle.
-  - Abweichungen können die Gültigkeit der Analyse beeinträchtigen.
+	- **Normalität der Fehler**
+	  
+	  - Fehler folgen einer Normalverteilung.
+	  - Wichtig für statistische Tests und Modelle.
+	  - Abweichungen können die Gültigkeit der Analyse beeinträchtigen.
 
 - **Residuen vs. Fehler**
   
