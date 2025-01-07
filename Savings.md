@@ -93,7 +93,7 @@ lmod = smf.ols('sr ~ pop15 + pop75 + dpi + ddpi', savings).fit()
 
 # 4. Diagnosis
 
-- Fehler: $\epsilon \sim N(0,  \sigma^2 I)$
+- Fehler: $\varepsilon \sim N(0,  \sigma^2 I)$
 - Modell: Annahme des strukturellen Teils $\mathbbE(y) = X \beta$
 - Ungewöhnliche Beobachtungen:
   - Einige Beobachtungen passen nicht ins Modell.
@@ -113,16 +113,16 @@ lmod = smf.ols('sr ~ pop15 + pop75 + dpi + ddpi', savings).fit()
 ## 4.1. Fehleranalyse
 
 - Fehler und Residuen:
-  - Fehler $\epsilon$ sind nicht beobachtbar.
-  - Residuen $\hat{\epsilon}$ sind beobachtbar und können untersucht werden.
+  - Fehler $\varepsilon$ sind nicht beobachtbar.
+  - Residuen $\hat{\varepsilon}$ sind beobachtbar und können untersucht werden.
   - Residuen und Fehler sind verwandt, aber unterschiedlich.
-  - Fehler $\epsilon$ haben gleiche Varianz und sind unkorreliert.
-  - Residuen $\hat{\epsilon}$ haben nicht die gleiche Varianz und Korrelation.
+  - Fehler $\varepsilon$ haben gleiche Varianz und sind unkorreliert.
+  - Residuen $\hat{\varepsilon}$ haben nicht die gleiche Varianz und Korrelation.
   - Der Einfluss ist jedoch gering.
-  - Diagnosen können auf $\hat{\epsilon}$ angewendet werden, um Annahmen über $\epsilon$ zu überprüfen.
-  - $\hat{\epsilon} = y-\hat{y} = (I-H)y = (I-H)\epsilon$
-  - $var(\hat{\epsilon}) = var[(I-H)\epsilon] = (I-H) \sigma^2$
-- Annahme: $var(\epsilon) = \sigma^2 I$
+  - Diagnosen können auf $\hat{\varepsilon}$ angewendet werden, um Annahmen über $\varepsilon$ zu überprüfen.
+  - $\hat{\varepsilon} = y-\hat{y} = (I-H)y = (I-H)\varepsilon$
+  - $var(\hat{\varepsilon}) = var[(I-H)\varepsilon] = (I-H) \sigma^2$
+- Annahme: $var(\varepsilon) = \sigma^2 I$
   - Unabhängigkeit der Fehler:
     - Fehler sollten sich nicht gegenseitig beeinflussen.
     - Ein Fehler sollte keinen anderen Fehler beeinflussen.
@@ -139,7 +139,7 @@ lmod = smf.ols('sr ~ pop15 + pop75 + dpi + ddpi', savings).fit()
   - Residuen allein reichen nicht aus, um sie zu überprüfen.
   - Prüfen, ob Variabilität der Residuen mit einem anderen Faktor zusammenhängt.
 
-- Plot von $\hat{\epsilon}$ gegen $\hat{y}$.
+- Plot von $\hat{\varepsilon}$ gegen $\hat{y}$.
   - Bei konstanter Varianz: konsistentes, symmetrisches Muster (Homoskedastizität).
   - Bei inkonsistentem Muster: Heteroscedastizität.
   - Gekrümmtes Muster deutet auf Nichtlinearität im Modell hin.
@@ -151,7 +151,7 @@ plt.ylabel("Residuals"); plt.xlabel("Fitted values"); plt.axhline(0);
 
 ![](Figures/savings_9_0.png)
 
-- Für genauere Prüfung: $\sqrt{|\hat{\epsilon}|}$ gegen $\hat{y}$ plotten.
+- Für genauere Prüfung: $\sqrt{|\hat{\varepsilon}|}$ gegen $\hat{y}$ plotten.
 
 ```python=
 plt.scatter(lmod.fittedvalues, np.sqrt(abs(lmod.resid)))
@@ -160,7 +160,7 @@ plt.ylabel(r'$\sqrt{|\hat{ε}|}$'); plt.xlabel("Fitted values");
 
 ![](Figures/savings_11_0.png)
 
-- Numerischer Test auf nicht konstante Varianz: Prüfen, ob $\sqrt{|\hat{\epsilon}|}$ sich mit den angepassten Werten ändert.
+- Numerischer Test auf nicht konstante Varianz: Prüfen, ob $\sqrt{|\hat{\varepsilon}|}$ sich mit den angepassten Werten ändert.
 
 ```python=
 ddf = pd.DataFrame({'x':lmod.fittedvalues, 'y':np.sqrt(abs(lmod.resid))})
@@ -297,7 +297,7 @@ sp.stats.shapiro(lmod.resid)
   - Test zur Bewertung der Korrelation von Fehlern.
   - Nullhypothese: Fehler sind unkorreliert.
   - Nullverteilung folgt einer linearen Kombination von χ²-Verteilungen.
-    - $DW = \frac{\sum_{i=2}^{n}{(\hat{\epsilon}_i - \hat{\epsilon}_{i-1})^2} }{\sum_{i=1}^{n}{\hat{\epsilon}_i^2}}$
+    - $DW = \frac{\sum_{i=2}^{n}{(\hat{\varepsilon}_i - \hat{\varepsilon}_{i-1})^2} }{\sum_{i=1}^{n}{\hat{\varepsilon}_i^2}}$
     - Bei Nullhypothese: Teststatistikwert von 2 erwartet. Werte unter 1 deuten auf ein Problem hin.
 - Serielle Korrelation:
   - Kann durch fehlende Kovariaten im Modell entstehen.
@@ -327,8 +327,8 @@ sm.stats.stattools.durbin_watson(lmod.resid)
 
 - Hebelwerte:
   - Hebelwerte sind $h_i = H_{ii}$ und nützliche Diagnosen.
-  - Varianz der Fehler: $var(\hat{\epsilon}_i) = \sigma^2 (1-h_i)$
-    - Große Hebelwerte $h_i$ machen $var(\hat{\epsilon}_i)$ klein. Der geschätzte Wert $\hat{y}_i$ ist näher am beobachteten Wert $y_i$.
+  - Varianz der Fehler: $var(\hat{\varepsilon}_i) = \sigma^2 (1-h_i)$
+    - Große Hebelwerte $h_i$ machen $var(\hat{\varepsilon}_i)$ klein. Der geschätzte Wert $\hat{y}_i$ ist näher am beobachteten Wert $y_i$.
     - Große Hebelwerte entstehen durch extreme Werte in den Prädiktorvariablen (X-Raum).
     - $h_i$ hängt mit der quadrierten Mahalanobis-Distanz zusammen.
     - $h_i$ hängt nur von X ab, nicht von y. Hebelwerte enthalten nur teilweise Informationen über einen Fall.
@@ -337,7 +337,7 @@ sm.stats.stattools.durbin_watson(lmod.resid)
 - Verteilung der Hebelwerte:
   - Nicht annehmbar. Halb-Normal-Plot zur Identifikation großer Hebelwerte.
     - Daten gegen positive Normalquantile plotten.
-    - Halb-Normal-Plots für $|\hat{\epsilon}|$ verwenden.
+    - Halb-Normal-Plots für $|\hat{\varepsilon}|$ verwenden.
     - Daten sortieren: $h_{[1]} \leq \cdots \leq h_{[n]}$.
     - Positive Normalquantile berechnen: $u_i=\Phi^{-1}(\frac{n+i}{2n+1})$.
     - $h_{[i]}$ gegen $u_i$ plotten.
@@ -375,7 +375,7 @@ plt.annotate("Libya",(2.1,0.53)); plt.annotate("USA", (1.9,0.33));
 ![](Figures/savings_33_0.png)
 
 - Residuenvarianz:
-  - $var(\hat{\epsilon}_i) = \sigma^2 (1-h_i)$
+  - $var(\hat{\varepsilon}_i) = \sigma^2 (1-h_i)$
   - Formel für standardisierte Residuen: $r_i=\frac{{\hat{\varepsilon}}_i}{\hat{\sigma}\sqrt{1-h_i}}$
 - Standardisierte Residuen (Pearson-Residuen):
   - Bevorzugt in Residuenplots, da sie angepasste gleiche Varianz haben.
@@ -566,10 +566,8 @@ pd.DataFrame({'with':lmod.params, 'without':lmodi.params})
   </tbody>
 </table>
 
-- Änderungen:
-  - Koeffizient für ddpi änderte sich um ca. 50%.
-- Sensitivität:
-  - Schätzungen sollen nicht so empfindlich auf ein Land reagieren.
+- Koeffizient für ddpi änderte sich um ca. 50%.
+- Sensitivität: Schätzungen sollen nicht so empfindlich auf ein Land reagieren.
 
 ```python=
 # Extract DFBETAS for pop15. DFBETAS stands for "Difference in Betas." 
@@ -591,7 +589,7 @@ ix = 48; plt.annotate(savings.index[ix], (ix, p15d[ix]));
 
 ![](Figures/savings_49_0.png)
 
-- Änderung des zweiten Parameters (~popI5) bei Ausschluss eines Falls:
+- Änderung des zweiten Parameters (~pop15) bei Ausschluss eines Falls:
   - Japan fällt besonders auf.
   - Prozess für andere Variablen wiederholen.
   - Wirkung des Ausschlusses von Japan untersuchen.
