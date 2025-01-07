@@ -1,19 +1,17 @@
 ---
-
 title: " Savings"
 author: "db"
-
 ---
 
 # 1. Datenbeschreibung
 
-- **Beobachtungen**: 50
-- **Variablen**:
-  - **sr**: Sparquote (Prozentsatz des verfügbaren Einkommens, das gespart wird)
-  - **pop15**: Prozentanteil der Bevölkerung unter 15 Jahren
-  - **pop75**: Prozentanteil der Bevölkerung über 75 Jahren
-  - **dpi**: Reales Pro-Kopf-Verfügbares Einkommen
-  - **ddpi**: Wachstumsrate des realen Pro-Kopf-Verfügbaren Einkommens
+- Beobachtungen: 50
+- Variablen:
+  - sr: Sparquote (Prozentsatz des verfügbaren Einkommens, das gespart wird)
+  - pop15: Prozentanteil der Bevölkerung unter 15 Jahren
+  - pop75: Prozentanteil der Bevölkerung über 75 Jahren
+  - dpi: Reales Pro-Kopf-Verfügbares Einkommen
+  - ddpi: Wachstumsrate des realen Pro-Kopf-Verfügbaren Einkommens
 
 # 2. Packages und Daten
 
