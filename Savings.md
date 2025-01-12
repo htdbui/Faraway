@@ -94,7 +94,7 @@ lmod = smf.ols('sr ~ pop15 + pop75 + dpi + ddpi', savings).fit()
 # 4. Diagnosis
 
 - Fehler: $\varepsilon \sim N(0,  \sigma^2 I)$
-- Modell: Annahme des strukturellen Teils $\mathbbE(y) = X \beta$
+- Modell: Annahme des strukturellen Teils $\mathbb{E}(y) = X \beta$
 - Ungewöhnliche Beobachtungen:
   - Einige Beobachtungen passen nicht ins Modell.
   - Diese können Modellwahl und -anpassung beeinflussen.
