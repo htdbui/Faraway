@@ -7,9 +7,7 @@ Welcome to the **Faraway** project! This repository contains the data and code f
 - [Overview](#overview)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Notebooks](#notebooks)
-  - [Savings](#savings)
-  - [Galapagos](#galapagos)
+- [Notebooks Topics](#notebooks)
 - [Contributing](#contributing)
 - [License](#license)
 
