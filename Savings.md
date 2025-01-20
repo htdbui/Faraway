@@ -94,16 +94,12 @@ lmod = smf.ols('sr ~ pop15 + pop75 + dpi + ddpi', savings).fit()
 # 4. Diagnosis
 
 - Fehler: $\varepsilon \sim N(0,  \sigma^2 I)$
-- Modell: Annahme des strukturellen Teils $\mathbb{E}(y) = X \beta$
-- Ungewöhnliche Beobachtungen:
-  - Einige Beobachtungen passen nicht ins Modell.
-  - Diese können Modellwahl und -anpassung beeinflussen.
+- Annahme des strukturellen Teils $\mathbb{E}(y) = X \beta$
+- Ungewöhnliche Beobachtungen passen nicht ins Modell und können Modellwahl und -anpassung beeinflussen.
 - Diagnose-Techniken:
   - Grafische Techniken:
     - Flexibel, aber schwerer zu interpretieren.
-    - Visuelle Darstellung, erfordert mehr Intuition.
   - Numerische Techniken:
-    - Weniger Intuition erforderlich.
     - Präzisere und objektivere Ergebnisse durch Berechnungen.
 - Modellfindung:
   - Erste Modellversuche oft unzureichend.
@@ -113,8 +109,7 @@ lmod = smf.ols('sr ~ pop15 + pop75 + dpi + ddpi', savings).fit()
 ## 4.1. Fehleranalyse
 
 - Fehler und Residuen:
-  - Fehler $\varepsilon$ sind nicht beobachtbar.
-  - Residuen $\hat{\varepsilon}$ sind beobachtbar und können untersucht werden.
+  - Fehler $\varepsilon$ nicht beobachtbar, Residuen $\hat{\varepsilon}$ sind beobachtbar und können untersucht werden.
   - Residuen und Fehler sind verwandt, aber unterschiedlich.
   - Fehler $\varepsilon$ haben gleiche Varianz und sind unkorreliert.
   - Residuen $\hat{\varepsilon}$ haben nicht die gleiche Varianz und Korrelation.
@@ -136,10 +131,12 @@ lmod = smf.ols('sr ~ pop15 + pop75 + dpi + ddpi', savings).fit()
 ### 4.1.1. Konstante Varianz
 
 - Konstante Varianz:
+  
   - Residuen allein reichen nicht aus, um sie zu überprüfen.
   - Prüfen, ob Variabilität der Residuen mit einem anderen Faktor zusammenhängt.
 
 - Plot von $\hat{\varepsilon}$ gegen $\hat{y}$.
+  
   - Bei konstanter Varianz: konsistentes, symmetrisches Muster (Homoskedastizität).
   - Bei inkonsistentem Muster: Heteroscedastizität.
   - Gekrümmtes Muster deutet auf Nichtlinearität im Modell hin.
@@ -217,10 +214,12 @@ fstat = np.var(numres, ddof=1)/np.var(denres, ddof=1)
     0.013575950424160377
 
 - Modellanpassungen bei Problemen:
+  
   - Nichtlinearität und nicht konstante Varianz: Variablen transformieren.
   - Nur nicht konstante Varianz: gewichtete kleinste Quadrate oder Antwortvariable transformieren.
 
 - Transformation der Antwortvariable:
+  
   - Ziel: konstante Varianz von $h(y)$.
   - Expansion:
     - $h(y) = h(E(y)) + [y-E(y)] \cdot h'(E(y)) + \cdots$
@@ -255,11 +254,13 @@ plt.hist(lmod.resid); plt.xlabel("Residuals");
 ![](Figures/savings_23_0.png)
 
 - In Q-Q-Plots:
+  
   - Schwierige Identifikation des genauen Problems.
   - Extreme Fälle könnten auf langschwänzige Fehler (z.B. Cauchy-Verteilung) oder Ausreißer hinweisen.
   - Werden diese Beobachtungen entfernt und andere Punkte werden auffälliger, liegt wahrscheinlich ein langschwänziger Fehler vor.
 
 - Shapiro-Wilk-Test:
+  
   - Formeller Test zur Überprüfung der Normalität.
   - Nullhypothese: Residuen sind normal. Wird die Nullhypothese nicht abgelehnt, können die Residuen normal sein.
   - Am besten zusammen mit einem Q-Q-Plot verwenden.
@@ -274,11 +275,13 @@ sp.stats.shapiro(lmod.resid)
     ShapiroResult(statistic=0.986984385973169, pvalue=0.8523961877568906)
 
 - Fehler im statistischen Modell:
+  
   - Nicht normalverteilte Fehler: Kleinste-Quadrate-Schätzungen sind nicht optimal, aber beste lineare unverzerrte Schätzungen.
   - Robuste Schätzer könnten besser sein.
   - Tests und Konfidenzintervalle: Annahme der Normalverteilung könnte ungenau sein, aber bei großen Stichproben durch das zentrale Grenzwerttheorem genauer.
 
 - Umgang mit Nicht-Normalität:
+  
   - Lösung hängt von der Art der Nicht-Normalität ab:
     - Kurzschwänzige Verteilung: Minimale Auswirkungen, kann ignoriert werden.
     - Schiefe Fehler: Transformation der Antwortvariablen könnte helfen.
@@ -288,6 +291,7 @@ sp.stats.shapiro(lmod.resid)
     - Robuste Methoden: Weniger Gewicht auf Ausreißer, erfordern möglicherweise Resampling für genaue Inferenz.
 
 - Modelländerungen und Diagnosetests:
+  
   - Andere diagnostische Tests könnten Modelländerungen erfordern.
   - Nichtlinearität und nicht konstante Varianz zuerst beheben, um das Problem der nicht normalverteilten Fehler zu vermeiden.
 
@@ -326,6 +330,7 @@ sm.stats.stattools.durbin_watson(lmod.resid)
 ### 4.2.1. Hebelwirkung
 
 - Hebelwerte:
+  
   - Hebelwerte sind $h_i = H_{ii}$ und nützliche Diagnosen.
   - Varianz der Fehler: $var(\hat{\varepsilon}_i) = \sigma^2 (1-h_i)$
     - Große Hebelwerte $h_i$ machen $var(\hat{\varepsilon}_i)$ klein. Der geschätzte Wert $\hat{y}_i$ ist näher am beobachteten Wert $y_i$.
@@ -335,6 +340,7 @@ sm.stats.stattools.durbin_watson(lmod.resid)
     - $\sum_i h_i = p$, der Durchschnittswert für $h_i$ ist p/n. Hebelwerte größer als 2p/n sollten genauer untersucht werden.
 
 - Verteilung der Hebelwerte:
+  
   - Nicht annehmbar. Halb-Normal-Plot zur Identifikation großer Hebelwerte.
     - Daten gegen positive Normalquantile plotten.
     - Halb-Normal-Plots für $|\hat{\varepsilon}|$ verwenden.
@@ -406,16 +412,19 @@ sm.qqplot(rstandard);
 ### 4.2.2. Ausreißer
 
 - Ausreißer:
+  
   - Ein Ausreißer ist ein Datenpunkt, der sich von den anderen deutlich unterscheidet.
   - Ausreißertests helfen, außergewöhnliche Datenpunkte von großen Residuen zu unterscheiden.
 
 - Einflussreiche Punkte:
+  
   - Ein Punkt mit großem Residuum, der auch die Residuen anderer Punkte erhöht, ist sowohl ein Ausreißer als auch ein einflussreicher Punkt.
   - Solche Punkte sind wichtig zu identifizieren, da sie die Analyse stark beeinflussen können.
 
 ![](Figures/savings_1.png)
 
 - Erkennung einflussreicher Punkte:
+  
   - Ausschließen des Punktes (i) und Neuberechnung der Schätzungen: ${\hat{\beta}}_{\left(i\right)}$ und ${\hat{\sigma}}_{\left(i\right)}^2$.
   - Berechnung des neuen Wertes: ${\hat{y}}_{\left(i\right)}=x_i^\prime{\hat{\beta}}_{\left(i\right)}$
   - Große Differenz ${\hat{y}}_{\left(i\right)}-y_i$ zeigt, dass Fall i ein Ausreißer ist.
@@ -423,11 +432,13 @@ sm.qqplot(rstandard);
   - Alternativ: $t_i=\frac{{\hat{\varepsilon}}_i}{{\hat{\sigma}}_{(i)}\sqrt{1-h_i}}=r_i\ \left(\frac{n-p-1}{n-p-r_i^2}\right)^\frac{1}{2}\ \sim t_{n-p-1}$
 
 - Testen auf Ausreißer:
+  
   - $t_i \sim t_{n-p-1}$ ermöglicht die Berechnung eines p-Werts.
   - Bei Tests aller Fälle (n=100) bei 5% Signifikanzniveau erwartet man etwa fünf Ausreißer.
   - Anpassung des Testniveaus nötig, um zu viele Ausreißer zu vermeiden.
 
 - Bonferroni-Korrektur:
+  
   - Anpassung des Signifikanzniveaus bei mehreren Tests: $\alpha/n$ für jeden Test.
   - Methode ist konservativ und findet weniger Ausreißer als das nominelle Konfidenzniveau.
   - Reduziert die Wahrscheinlichkeit von Fehlalarmen (falschen positiven Ergebnissen).
@@ -1002,11 +1013,17 @@ plt.plot([35, 48], [lmod2.params.iat[0] + lmod2.params.iat[1] * 35,
       \end{cases}$
 
 - Punkt ‘c’ teilt die Daten in zwei Gruppen und erzeugt die Variablen $B_l$ und $B_r$.
+
 - Diese Variablen bilden eine erste Ordnung Spline-Basis mit einem Knoten bei ‘c’, was eine bessere Anpassung ermöglicht.
+
 - Diese Variablen werden oft als Hockeyschläger-Funktionen bezeichnet.
+
 - Das Modell hat die Form $y=\beta_0+\beta_1B_l(x)+\beta_2B_r(x)+\varepsilon$ und wird durch reguläre Regressionsmethoden angepasst.
+
 - Die beiden Segmente des Modells treffen sich bei Punkt ‘c’, was Kontinuität gewährleistet.
+
 - Im Gegensatz zum vorherigen Ansatz verwendet dieses Modell nur drei Parameter, indem es die Glätte bei Punkt ‘c’ sicherstellt.
+
 - Der Achsenabschnitt dieses Modells ist der Wert des Ergebnisses, wo die beiden Teile sich treffen.
 
 ```python=
