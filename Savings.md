@@ -3,7 +3,7 @@ title: " Savings"
 author: "db"
 ---
 
-# 1. Datenbeschreibung
+# Datenbeschreibung
 
 - Beobachtungen: 50
 - Variablen:
@@ -13,7 +13,7 @@ author: "db"
   - dpi: Reales Pro-Kopf-Verfügbares Einkommen
   - ddpi: Wachstumsrate des realen Pro-Kopf-Verfügbaren Einkommens
 
-# 2. Packages und Daten
+# Packages und Daten
 
 ```python=
 import pandas as pd, numpy as np
@@ -85,13 +85,13 @@ savings.head()
   </tbody>
 </table>
 
-# 3. Lineare Regression
+# Lineare Regression
 
 ```python=
 lmod = smf.ols('sr ~ pop15 + pop75 + dpi + ddpi', savings).fit()
 ```
 
-# 4. Diagnosis
+# Diagnosis
 
 - Fehler: $\varepsilon \sim N(0,  \sigma^2 I)$
 - Annahme des strukturellen Teils $\mathbb{E}(y) = X \beta$
@@ -106,7 +106,7 @@ lmod = smf.ols('sr ~ pop15 + pop75 + dpi + ddpi', savings).fit()
   - Regressionsdiagnosen identifizieren Verbesserungsbereiche.
   - Iterativer und interaktiver Prozess.
 
-## 4.1. Fehleranalyse
+## Diagnosis.Fehleranalyse
 
 - Fehler und Residuen:
   - Fehler $\varepsilon$ nicht beobachtbar, Residuen $\hat{\varepsilon}$ sind beobachtbar und können untersucht werden.
@@ -128,7 +128,7 @@ lmod = smf.ols('sr ~ pop15 + pop75 + dpi + ddpi', savings).fit()
     - Diese Annahme ist wichtig für viele statistische Tests und Modelle.
     - Nicht normal verteilte Fehler können die Analyse beeinträchtigen.
 
-### 4.1.1. Konstante Varianz
+### Diagnosis.Fehleranalyse.Konstante Varianz
 
 - Konstante Varianz:
   
@@ -195,9 +195,9 @@ plt.xlabel("%pop under 15"); plt.ylabel("Residuals"); plt.axhline(0);
 
 ![](Figures/savings_16_0.png)
 
-- Zwei Gruppen sichtbar.
+- Zwei Gruppen sichtbar: unterentwickelten Ländern (pop15>35%) und entwickelten Ländern (pop15<35%).
 - Varianzen in diesen Gruppen vergleichen und testen.
-- Varianztest:  
+- Varianztest:
   - Zwei unabhängige Stichproben aus Normalverteilungen.
   - Teststatistik: Verhältnis der beiden Varianzen prüfen.
 
@@ -229,13 +229,20 @@ fstat = np.var(numres, ddof=1)/np.var(denres, ddof=1)
     - Beispiele:
       - $var(y) \propto (E(y))^2$, dann $h(y) = \log(y)$
       - $var(y) \propto E(y)$, dann $h(y) = \sqrt{y}$
-  - Alternative bei Werten ≤ 0: $\log(y + \delta)$, aber komplizierte Interpretation.
+  - Alternative bei Werten y ≤ 0: $\log(y + \delta)$, aber komplizierte Interpretation.
 
-### 4.1.2. Normalität
+### Diagnosis.Fehleranalyse.Normalität
 
 - Tests und Konfidenzintervalle basieren auf normalverteilten Fehlern.
 - Residuen können mit einem Q-Q-Plot auf Normalität geprüft werden.
 - Im Q-Q-Plot werden die sortierten Residuen gegen $\Phi^{-1} (\frac{i}{n+1})$ für $i = 1, \ldots, n$ geplottet. Normale Residuen sollten der Linie folgen.
+  - $\Phi^{-1}$ ist die Quantilfunktion der Standardnormalverteilung.
+  - $\frac{i}{n+1}$ sind gleichmäßig zwischen 0 und 1 verteilte Wahrscheinlichkeiten für die sortierten Residuen.
+  - Jeder sortierte Residuum wird dem entsprechenden theoretischen Quantilwert der Normalverteilung zugeordnet.
+  - Bei Rechtsschiefe zeigt der Q-Q-Plot eine S-Form, bei Linksschiefe eine umgekehrte S-Form (links oberhalb und rechts unterhalb der Diagonalen).
+  - Bei schweren Tails wölben sich die Punkte an beiden Enden nach außen (U-Form).
+  - Extreme Fälle könnten auf langschwänzige Fehler (z.B. Cauchy-Verteilung) oder Ausreißer hinweisen.
+  - Werden diese Beobachtungen entfernt und andere Punkte werden auffälliger, liegt wahrscheinlich ein langschwänziger Fehler vor.
 
 ```python=
 sm.qqplot(lmod.resid, line="q");
@@ -252,12 +259,6 @@ plt.hist(lmod.resid); plt.xlabel("Residuals");
 ```
 
 ![](Figures/savings_23_0.png)
-
-- In Q-Q-Plots:
-  
-  - Schwierige Identifikation des genauen Problems.
-  - Extreme Fälle könnten auf langschwänzige Fehler (z.B. Cauchy-Verteilung) oder Ausreißer hinweisen.
-  - Werden diese Beobachtungen entfernt und andere Punkte werden auffälliger, liegt wahrscheinlich ein langschwänziger Fehler vor.
 
 - Shapiro-Wilk-Test:
   
@@ -295,7 +296,7 @@ sp.stats.shapiro(lmod.resid)
   - Andere diagnostische Tests könnten Modelländerungen erfordern.
   - Nichtlinearität und nicht konstante Varianz zuerst beheben, um das Problem der nicht normalverteilten Fehler zu vermeiden.
 
-### 4.1.3. Korrigierte Fehler
+### Diagnosis.Fehleranalyse.Korrigierte Fehler
 
 - Durbin-Watson-Test:
   - Test zur Bewertung der Korrelation von Fehlern.
@@ -313,9 +314,9 @@ sp.stats.shapiro(lmod.resid)
 sm.stats.stattools.durbin_watson(lmod.resid)
 ```
 
-    1.9341492250435388
+    1.9341
 
-## 4.2. Ungewöhnliche Beobachtungen
+## Diagnosis.Ungewöhnliche Beobachtungen
 
 - Ausreißer:
   - Passen nicht gut zum Modell.
@@ -327,16 +328,18 @@ sm.stats.stattools.durbin_watson(lmod.resid)
   - Potenziell beeinflussen sie die Anpassung, müssen es aber nicht.
   - Identifikation ist wichtig, Umgang damit kann schwierig sein.
 
-### 4.2.1. Hebelwirkung
+### Diagnosis.Ungewöhnliche Beobachtungen.Hebelwirkung
 
 - Hebelwerte:
   
-  - Hebelwerte sind $h_i = H_{ii}$ und nützliche Diagnosen.
+  - $H = X{(X^TX)}^{-1}X$. Hebelwerte sind $h_i = H_{ii}$.
   - Varianz der Fehler: $var(\hat{\varepsilon}_i) = \sigma^2 (1-h_i)$
-    - Große Hebelwerte $h_i$ machen $var(\hat{\varepsilon}_i)$ klein. Der geschätzte Wert $\hat{y}_i$ ist näher am beobachteten Wert $y_i$.
-    - Große Hebelwerte entstehen durch extreme Werte in den Prädiktorvariablen (X-Raum).
+    - Große  $h_i$ machen $var(\hat{\varepsilon}_i)$ klein. Der $\hat{y}_i$ ist näher am $y_i$.
+    - Große Hebelwerte entstehen durch extreme Werte in den Prädiktorvariablen.
     - $h_i$ hängt mit der quadrierten Mahalanobis-Distanz zusammen.
-    - $h_i$ hängt nur von X ab, nicht von y. Hebelwerte enthalten nur teilweise Informationen über einen Fall.
+      - Die Mahalanobis-Distanz berücksichtigt Korrelationen und Varianzen und ist geeignet für die Ausreißererkennung in mehrdimensionalen Daten (im Gegensatz zur euklidischen Distanz).
+      - $D_{M,i}^2 = (n - 1)h_{ii}$
+    - $h_i$ hängt nur von $X$ ab, nicht von $y$. Hebelwerte enthalten nur teilweise Informationen über einen Fall.
     - $\sum_i h_i = p$, der Durchschnittswert für $h_i$ ist p/n. Hebelwerte größer als 2p/n sollten genauer untersucht werden.
 
 - Verteilung der Hebelwerte:
@@ -363,13 +366,8 @@ hatv.sort_values().tail()
     dtype: float64
 
 ```python=
-print(sum(hatv)); print(2*5/50) # p = 5, n = 50
-```
-
-    4.999
-    0.2
-
-```python=
+print(sum(hatv)) # 4.999
+print(2*5/50) # p = 5, n = 50, 0.2
 # Draw half-normal plot
 n=50
 ix = np.arange(1, n+1)
@@ -391,8 +389,8 @@ plt.annotate("Libya",(2.1,0.53)); plt.annotate("USA", (1.9,0.33));
   - Bei Heteroskedastizität keine Korrektur durch Standardisierung möglich.
 
 ```python=
-# lmod.resid_pearson: Divides only by σ^, no leverage component.
-# Internally Studentized Residuals: Obtainable via `get_influence()` function.
+# lmod.resid_pearson: Divides only by σ^, no leverage component
+# Internally Studentized Residuals: Obtainable via `get_influence()` function
 rstandard = diagv.resid_studentized_internal
 sm.qqplot(rstandard);
 ```
@@ -409,7 +407,7 @@ sm.qqplot(rstandard);
     - Oft ähnlich wie rohe Residuen, unterscheiden sich nur im Maßstab.
     - Unterschiede im Plot erkennbar bei ungewöhnlich großen Hebelwerten.
 
-### 4.2.2. Ausreißer
+### Diagnosis.Ungewöhnliche Beobachtungen.Ausreißer
 
 - Ausreißer:
   
@@ -425,11 +423,11 @@ sm.qqplot(rstandard);
 
 - Erkennung einflussreicher Punkte:
   
-  - Ausschließen des Punktes (i) und Neuberechnung der Schätzungen: ${\hat{\beta}}_{\left(i\right)}$ und ${\hat{\sigma}}_{\left(i\right)}^2$.
-  - Berechnung des neuen Wertes: ${\hat{y}}_{\left(i\right)}=x_i^\prime{\hat{\beta}}_{\left(i\right)}$
-  - Große Differenz ${\hat{y}}_{\left(i\right)}-y_i$ zeigt, dass Fall i ein Ausreißer ist.
-  - Studentisierte Residuen zur Bewertung: $t_i=\frac{y_i-{\hat{y}}_{\left(i\right)}}{{\hat{\sigma}}_{(i)}\sqrt{1+x_i^\prime\left(X_{\left(i\right)}^\prime X_{\left(i\right)}\right)^{-1}x_i}}$
-  - Alternativ: $t_i=\frac{{\hat{\varepsilon}}_i}{{\hat{\sigma}}_{(i)}\sqrt{1-h_i}}=r_i\ \left(\frac{n-p-1}{n-p-r_i^2}\right)^\frac{1}{2}\ \sim t_{n-p-1}$
+  - Ausschließen des Punktes (i) und Neuberechnung der Schätzungen: ${\hat{\beta}}_{(i)}$ und ${\hat{\sigma}}_{(i)}^2$.
+  - Berechnung des neuen Wertes: ${\hat{y}}_{(i)}=x_i^\prime{\hat{\beta}}_{(i)}$
+  - Große Differenz ${\hat{y}}_{(i)}-y_i$ zeigt, dass Fall $i$ ein Ausreißer ist.
+  - Studentisierte Residuen zur Bewertung: $t_i=\frac{y_i-{\hat{y}}_{(i)}}{{\hat{\sigma}}_{(i)}\sqrt{1+x_i^\prime(X_{(i)}^\prime X_{(i)})^{-1}x_i}}$
+  - Alternativ: $t_i=\frac{{\hat{\varepsilon}}_i}{{\hat{\sigma}}_{(i)}\sqrt{1-h_i}}=r_i\ (\frac{n-p-1}{n-p-r_i^2})^\frac{1}{2}\ \sim t_{n-p-1}$
 
 - Testen auf Ausreißer:
   
@@ -437,26 +435,24 @@ sm.qqplot(rstandard);
   - Bei Tests aller Fälle (n=100) bei 5% Signifikanzniveau erwartet man etwa fünf Ausreißer.
   - Anpassung des Testniveaus nötig, um zu viele Ausreißer zu vermeiden.
 
-- Bonferroni-Korrektur:
-  
-  - Anpassung des Signifikanzniveaus bei mehreren Tests: $\alpha/n$ für jeden Test.
-  - Methode ist konservativ und findet weniger Ausreißer als das nominelle Konfidenzniveau.
-  - Reduziert die Wahrscheinlichkeit von Fehlalarmen (falschen positiven Ergebnissen).
+    - Bonferroni-Korrektur:
+
+      - Anpassung des Signifikanzniveaus bei mehreren Tests: $\alpha/n$ für jeden Test.
+      - Methode ist konservativ und findet weniger Ausreißer als das nominelle Konfidenzniveau.
+      - Reduziert die Wahrscheinlichkeit von Fehlalarmen (falschen positiven Ergebnissen).
 
 ```python=
 # In statsmodels, studentized residual is externally studentized residual and got by the get_influence()
 stud = pd.Series(diagv.resid_studentized_external, savings.index)
 (pd.Series.idxmax(abs(stud)), np.max(abs(stud)))
+# ('Zambia', 2.854)
 ```
-
-    ('Zambia', 2.8535583382283916)
 
 ```python=
 # Calculate the critical value: α=0.05, divided by 2 for 2 sided test, n = 50 -> n-p-1=44
 abs(sp.stats.t.ppf(0.05/(2*50), 44))
+# 3.5256
 ```
-
-    3.525801306486005
 
 - Da 2,85 kleiner als 3,53 ist:
   - Schlussfolgerung: Sambia ist kein Ausreißer.
@@ -464,23 +460,23 @@ abs(sp.stats.t.ppf(0.05/(2*50), 44))
   - Kritischer Minimalwert ist 3,51 bei $n = 23$.
   - p-Wert für Ausreißertests nur berechnen, wenn studentisierter Residuum absolut größer als 3,5 ist.
 
-#### Vier Punkte:
+**Bermerkungen**
 
-- Ausreißer:
+- Ausreißer
   - Zwei oder mehr Ausreißer nebeneinander können sich gegenseitig verstecken.
   - Ein Ausreißer in einem Modell ist möglicherweise kein Ausreißer in einem anderen Modell.
     - Bei Änderung oder Transformation der Variablen muss die Frage der Ausreißer neu untersucht werden.
-- Fehlerverteilung:
-  - Fehlerverteilung ist nicht immer normal, größere Fehler können gelegentlich auftreten.
-    - Beispiel: Aktienkurse ändern sich meist geringfügig, können aber auch signifikant und unerwartet schwanken.
-- Größere Datensätze:
+- Größere Datensätze
   - Einzelne Ausreißer haben weniger Einfluss auf die Gesamtanpassung.
   - Wichtig, Ausreißer zu identifizieren, um wertvolle Erkenntnisse zu gewinnen.
-    - Fokus auf Cluster von Ausreißern:
+    - Fokus auf Cluster von Ausreißern
       - Weniger wahrscheinlich zufällig, eher bedeutungsvolle Muster.
       - Identifizierung dieser Cluster kann schwierig sein.
+- Fehlerverteilung
+  - Fehlerverteilung ist nicht immer normal, größere Fehler können gelegentlich auftreten.
+    - Beispiel: Aktienkurse ändern sich meist geringfügig, können aber auch signifikant und unerwartet schwanken.
 
-#### Aufgaben bei Ausreißern:
+**Aufgaben bei Ausreißern**
 
 - Datenfehler prüfen:
   - Bei sicherem Fehler, Punkt verwerfen.
@@ -494,7 +490,7 @@ abs(sp.stats.t.ppf(0.05/(2*50), 44))
 - Automatisches Ausschließen:
   - Gefährlich, sollte vermieden werden.
 
-### 4.2.3. Einflussreiche Beobachtungen
+### Diagnosis.Ungewöhnliche Beobachtungen.Einflussreiche Beobachtungen
 
 - Einflussreicher Punkt:
   - Entfernen würde die Modellanpassung stark ändern.
@@ -527,15 +523,15 @@ plt.scatter(halfq, np.sort(cooks));
 cooks.sort_values().iloc[-5:]
 ```
 
-    Philippines    0.045221
-    Ireland        0.054396
-    Zambia         0.096633
-    Japan          0.142816
-    Libya          0.268070
+    Philippines    0.045
+    Ireland        0.054
+    Zambia         0.097
+    Japan          0.143
+    Libya          0.268
     dtype: float64
 
 ```python=
-# Eclude Libya and see how the fit changes
+# Exclude Libya and see how the fit changes
 lmodi = smf.ols('sr ~ pop15 + pop75 + dpi + ddpi', savings[cooks < 0.2]).fit()
 pd.DataFrame({'with':lmod.params, 'without':lmodi.params})
 ```
@@ -581,16 +577,19 @@ pd.DataFrame({'with':lmod.params, 'without':lmodi.params})
 - Sensitivität: Schätzungen sollen nicht so empfindlich auf ein Land reagieren.
 
 ```python=
-# Extract DFBETAS for pop15. DFBETAS stands for "Difference in Betas." 
-# Measure the change in each regression coefficient when an observation is removed from the dataset.
+# Extract DFBETA for pop15. DFBETA stands for "Difference in Betas."
+# Nimm die erste Beobachtung, berechne den geschätzten Koeffizienten.
+# Berechne die Differenz der Koeffizienten mit und ohne eine Beobachtung.
+# Notiere den Unterschied für die Variable pop15.
+# Wiederhole das für alle Beob, so erhält man einen Vektor mit 50 Werten.
+# diagv.dfbetas zeigt eine Matrix, wobei jede Spalte einer Variable entspricht.
+# Jeder Wert zeigt, wie stark sich der pop15-Koeffizient beim Entfernen einer Beob.  
+# Große DFBETA-Werte bedeuten einen starken Einfluss.
 p15d = diagv.dfbetas[:, 1]
-diagv.dfbetas.shape
 ```
 
-    (50, 5)
-
 ```python=
-# Plot DFBETAS for pop15
+# Plot dfbetas for pop15
 plt.scatter(np.arange(1,51), p15d)
 plt.axhline(0)
 # Annotate Japan and Libya
@@ -606,8 +605,7 @@ ix = 48; plt.annotate(savings.index[ix], (ix, p15d[ix]));
   - Wirkung des Ausschlusses von Japan untersuchen.
 
 ```python=
-lmodj = smf.ols('sr ~ pop15 + pop75 + dpi + ddpi', 
-    savings.drop(['Japan'])).fit()
+lmodj = smf.ols('sr ~ pop15+pop75+dpi+ddpi',savings.drop(['Japan'])).fit()
 lmodj.sumary()
 ```
 
@@ -624,25 +622,26 @@ lmodj.sumary()
   - ddpi-Term nicht mehr signifikant.
   - R²-Wert stark gesunken.
 
-## 4.3. Modellstruktur
+## Diagnosis.Modellstruktur
 
-- Plots der Residuen $\hat{\varepsilon}$ gegen:
-  - Vorhergesagte Werte $\hat{y}$
-  - Prädiktorvariablen $x_i$
-- Nutzen:
-  - Überprüfung der Annahmen über Fehler im Modell.
-  - Hinweise auf mögliche Transformationen der Variablen zur Verbesserung der Modellstruktur.
-- Wir können Diagramme von y gegen jedes $x_i$ erstellen.
-- Die Beziehung zwischen einem Prädiktor und der Antwortvariable kann von anderen Prädiktoren beeinflusst werden.
-- Um den Effekt eines Prädiktors ($x_i$) auf die Antwortvariable (y) zu isolieren, verwenden wir partielle Regressionsdiagramme:
-  - Zuerst sagen wir y mit allen Prädiktoren außer $x_i$ voraus, um die Residuen ($\hat{\delta}$) zu erhalten.
-  - Dann regredieren wir $x_i$ auf alle anderen Prädiktoren, um die Residuen ($\hat{\gamma}$) zu erhalten.
-  - Das Diagramm wird erstellt, indem $\hat{\delta}$ gegen $\hat{\gamma}$ geplottet wird. So erkennen wir nichtlineare Beziehungen, Ausreißer und einflussreiche Beobachtungen.
-- Ein partielles Regressionsdiagramm (Added Variable Plot) hilft, Regressionskoeffizienten zu verstehen.
-- Zeigt die Beziehung zwischen einem Prädiktor und der Antwortvariable, nach Entfernen der Effekte anderer Prädiktoren.
-- In der multiplen Regression ist es schwierig, die Beziehung zu visualisieren wegen der vielen Prädiktoren.
-- Das partielle Regressionsdiagramm vereinfacht dies, indem es sich auf einen Prädiktor konzentriert.
-- Es isoliert die Effekte anderer Prädiktoren und zeigt den individuellen Beitrag jedes Prädiktors zur Antwortvariable.
+- Plots zur Diagnose von Regressionsmodellen
+  - Plots der Residuen $\hat{\varepsilon}$ gegen:
+    - Vorhergesagte Werte $\hat{y}$
+    - Prädiktorvariablen $x_i$
+  - Nutzen dieser Plots:
+    - Überprüfung der Annahmen über Fehler im Modell
+    - Hinweise auf mögliche Transformationen der Variablen zur Verbesserung der Modellstruktur
+- Plots von $y$ gegen jedes $x_i$
+  - Die Beziehung zwischen einem Prädiktor und der Antwortvariable kann von anderen Prädiktoren beeinflusst werden.
+- **Partielle Regressionsdiagramme (Added Variable Plots)**
+  - Ziel: Den Effekt eines Prädiktors ($x_i$) auf die Antwortvariable ($y$) isolieren.
+  - Vorgehen:
+    - Zuerst wird $y$ mit allen Prädiktoren außer $x_i$ vorhergesagt, um die Residuen ($\hat{\delta}$) zu erhalten.
+    - Dann wird $x_i$ auf alle anderen Prädiktoren regrediert, um die Residuen ($\hat{\gamma}$) zu erhalten.
+    - Das partielle Regressionsdiagramm entsteht durch das Plotten von $\hat{\delta}$ gegen $\hat{\gamma}$.
+      - Damit lassen sich nichtlineare Beziehungen, Ausreißer und einflussreiche Beobachtungen erkennen.
+  - Ein partielles Regressionsdiagramm zeigt den individuellen Beitrag eines Prädiktors zur Antwortvariable, nachdem die Effekte der anderen Prädiktoren herausgerechnet wurden.
+  - So lässt sich der Einfluss eines einzelnen Prädiktors in einer multiplen Regression anschaulich darstellen.
 
 ```python=
 # Examine the variable pop15
@@ -650,38 +649,35 @@ d = smf.ols('sr ~ pop75 + dpi + ddpi', savings).fit().resid
 m = smf.ols('pop15 ~ pop75 + dpi + ddpi', savings).fit().resid
 plt.scatter(m, d)
 plt.xlabel("pop15 residuals"); plt.ylabel("sr residuals")
-# Plot a line from the point (-10, -10*beta_pop15) to the point (8, 8*beta_pop15)
+# Line from the point (-10, -10*β_pop15) to the point (8, 8*β_pop15)
 plt.plot([-10, 8], [-10*lmod.params.iloc[1], 8*lmod.params.iloc[1]]);
 ```
 
 ![](Figures/savings_54_0.png)
 
-- Die Funktion `np.polyfit(m, d, deg=1)` wird verwendet, um eine Polynomapproximation (lineare Regression in diesem Fall) auf die Datenpunkte (m, d) durchzuführen.
-- Hier ist eine detaillierte Aufschlüsselung:
-  - `m`: Array der x-Koordinaten (unabhängige Variable).
-  - `d`: Array der y-Koordinaten (abhängige Variable).
-  - `deg=1`: Grad des zu fitten Polynoms. `deg=1` bedeutet eine lineare Anpassung (gerade Linie).
+- Mit np.polyfit(m, d, deg=1) wird eine lineare Regression auf die Datenpunkte (m, d) durchgeführt.
+  - m: Array der x-Werte
+  - d: Array der y-Werte
+  - deg=1: Grad des Polynoms (hier eine Gerade)
 - Die Funktion gibt die Koeffizienten des Polynoms zurück, beginnend mit dem höchsten Grad.
-- Für eine lineare Anpassung werden zwei Koeffizienten zurückgegeben: die Steigung und der Achsenabschnitt.
+- Für eine lineare Anpassung liefert sie zwei Werte: Steigung und Achsenabschnitt.
 
 ```python=
-np.polyfit(m,d,deg=1), lmod.params.iat[1]
+np.polyfit(m,d,deg=1) # (array([-4.612e-01, -3.809e-13])
+lmod.params.iat[1] # -0.4611
 ```
 
-    (array([-4.61193147e-01, -3.80967234e-13]), -0.4611931471227622)
-
-- Partielle Residuenplots sind eine Alternative zu Added Variable Plots.
+- **Partielle Residuenplots** sind eine Alternative zu Added Variable Plots.
   - $y-\sum_{j\neq i}{x_j{\hat{\beta}}_j}=\hat{y}+\hat{\varepsilon}-\sum_{j\neq i}{x_j{\hat{\beta}}_j}=x_i{\hat{\beta}}_i+\hat{\varepsilon}$
   - Der partielle Residuenplot ist $x_i{\hat{\beta}}_i+\hat{\varepsilon}$ gegen $x_i$.
   - Die Steigung des Plots ist ${\hat{\beta}}_i$.
   - Partielle Residuenplots eignen sich besser zur Erkennung von Nichtlinearitäten, Added Variable Plots besser zur Erkennung von Ausreißern/Einflüssen.
-  - Manchmal sind die partiellen Residuen zentriert, was nur die Skala der vertikalen Achse verändert.
 
 ```python
 pr = lmod.resid + savings.pop15*lmod.params.iat[1]
 plt.scatter(savings.pop15, pr)
 plt.xlabel("pop15"); plt.ylabel("partial residuals")
-# Plot a line from the point (20, 20*beta_pop15) to the point (50, 50*beta_pop15)
+# Line from the point (20, 20*β_pop15) to the point (50, 50*β_pop15)
 plt.plot([20,50], [20*lmod.params.iat[1], 50*lmod.params.iat[1]]);
 ```
 
@@ -715,11 +711,12 @@ smf.ols('sr ~ pop15 + pop75 + dpi + ddpi', savings[savings.pop15 < 35]).fit().su
     
     n=27 p=5 Residual SD=2.772 R-squared=0.51
 
-- In unterentwickelten Ländern (pop15>35%) gibt es keinen Zusammenhang zwischen den Prädiktoren und der Antwortvariable.
-- In entwickelten Ländern (pop15<35%) gibt es einen starken Zusammenhang, besonders mit dem Prädiktor Wachstum und dem Anteil der Bevölkerung unter 15.
-- Der Effekt ist weniger auffällig, da wir den Bereich des Prädiktors eingeschränkt haben.
-- Die grafische Analyse zeigte eine Beziehung, die eine rein numerische Analyse übersehen könnte.
-- Zusätzliche Dimensionen in Diagnoseplots durch Farbe, Symbole oder Größe können hilfreich sein, oder wir verwenden facettierte Plots.
+- Unterentwickelte Länder (pop15 > 35%): kein erkennbarer Zusammenhang.
+- Entwickelte Länder (pop15 < 35%): klarer Zusammenhang, besonders mit „Wachstum“ und „pop15“.
+    - Der Effekt ist weniger deutlich, weil der Wertebereich eingeschränkt wurde.
+- Bedeutung von grafischer Analyse
+  - Grafiken zeigen Zusammenhänge, die Zahlen allein oft nicht erkennen lassen.
+  - Farben, Symbole, Größen oder mehrere Teilplots helfen, weitere Muster zu erkennen.
 
 ```python=
 savings.head(3)
@@ -771,12 +768,12 @@ sns.lmplot(x='ddpi', y='sr', data=savings, hue='age', facet_kws={"legend_out": F
 
 ![](Figures/savings_64_0.png)
 
-- `sns.lmplot`: Seaborn-Funktion für lineare Regression.
-- `x='ddpi'`: Spalte ‘ddpi’ für die x-Achse.
-- `y='sr'`: Spalte ‘sr’ für die y-Achse.
-- `data=savings`: DataFrame `savings` für das Diagramm.
-- `hue='age'`: Färbt Datenpunkte nach ‘age’ (jung, alt).
-- `facet_kws={"legend_out": False}`: Legende im Diagramm behalten.
+- sns.lmplot: Lineare Regression mit Seaborn
+  - x='ddpi': x-Achse ist ‘ddpi’
+  - y='sr': y-Achse ist ‘sr’
+  - data=savings: DataFrame ‘savings’
+  - hue='age': Punkte nach ‘age’ gefärbt
+  - facet_kws={"legend_out": False}: Legende im Plot
 
 ```python=
 sns.lmplot(x='ddpi', y='sr', data=savings, col='age');
@@ -784,42 +781,54 @@ sns.lmplot(x='ddpi', y='sr', data=savings, col='age');
 
 ![](Figures/savings_66_0.png)
 
-- Die Plots zeigen zwei Wege, die Statusvariable anhand des Anteils der Bevölkerung unter 15 zu unterscheiden.
-- Die zweite Plotreihe ist effektiver.
-- Wir haben eine Regressionslinie mit 95% Konfidenzintervallen hinzugefügt, um die Unterschiede zwischen den Gruppen zu zeigen.
-- Höherdimensionale Plots helfen, Strukturen zu erkennen, die in 2D nicht sichtbar sind.
-- Diese Plots sind meist interaktiv und erfordern Ausprobieren.
-- 3D-Plots können durch Farbe, Punktgröße und Rotation erstellt werden.
-- Mehrere Plots können verlinkt werden, um Punkte in einem Plot in einem anderen hervorzuheben.
-- Diese Tools sehen beeindruckend aus, sind aber praktisch oft schwer nutzbar und schwer zu drucken.
+- Möglichkeiten zur Unterscheidung der Statusvariable nach Bevölkerungsanteil unter 15
+  - Zwei Plotvarianten; die zweite ist effektiver.
+  - Regressionslinie mit 95%-Konfidenzintervallen zeigt Gruppenunterschiede.
+- Höherdimensionale Plots
+  - Helfen, verborgene Strukturen zu erkennen.
+  - Sind meist interaktiv und müssen ausprobiert werden.
+  - 3D-Plots: durch Farbe, Punktgröße, Rotation möglich.
+  - Mehrere Plots lassen sich verlinken, um Punkte hervorzuheben.
+  - Praktisch oft schwer bedienbar und nicht gut druckbar.
 
-## 4.4. Diskussion
+## Diagnosis.Diskussion
 
-- Nach Wichtigkeit der Effekte sortiert:
-  - **Modellform:** Korrekte Definition der Variablenbeziehungen ist essentiell. Falsche Definition führt zu fehlerhaften Vorhersagen und irreführenden Interpretationen.
-  - **Fehlerabhängigkeit:** Starke Abhängigkeit der Fehler reduziert die Informationsmenge der Daten. Dies kann zur fälschlichen Hinzufügung systematischer Komponenten führen. Schwer zu erkennen, außer bei zeitlichen Daten.
-  - **Nichtkonstante Varianz:** Kann zu ungenauen Schlussfolgerungen führen, vor allem bei der Unsicherheitsschätzung. Bei geringer Verletzung ist die Zuverlässigkeit der Schlussfolgerungen meist nicht stark beeinträchtigt.
-  - **Normalverteilung:** Weniger wichtig. Bei großen Datensätzen sind die Schlussfolgerungen robust, auch ohne Normalverteilung, dank des zentralen Grenzwertsatzes. Bei kleinen Stichproben oder extrem abnormalen Fehlern ist diese Annahme kritischer.
+- Sortierung nach Wichtigkeit der Effekte:
+  - Modellform
+    - Korrekte Definition der Beziehungen zwischen den Variablen ist am wichtigsten.
+    - Fehlerhafte Modellform führt zu falschen Vorhersagen und irreführenden Interpretationen.
+  - Fehlerabhängigkeit
+    - Starke Abhängigkeit der Fehler verringert die Informationsmenge der Daten.
+    - Kann dazu führen, dass unnötige systematische Komponenten ins Modell aufgenommen werden.
+    - Schwer zu erkennen, meist nur bei Zeitreihendaten auffällig.
+  - Nichtkonstante Varianz
+    - Führt zu ungenauen Schlussfolgerungen, besonders bei der Unsicherheitsschätzung.
+    - Bei nur leichter Verletzung ist die Auswirkung meist gering.
+  - Normalverteilung
+    - Am wenigsten wichtig.
+    - Bei großen Datensätzen sind die Ergebnisse meist robust, auch ohne Normalverteilung (zentraler Grenzwertsatz).
+    - Kritischer bei kleinen Stichproben oder sehr ungewöhnlichen Fehlerverteilungen.
 
-# 5. Skalierungsänderungen
+# Skalierungsänderungen
 
-- Manchmal müssen wir die Skala von Variablen ändern, um Einheiten zu konvertieren oder sehr große/kleine Werte anzupassen.
-- Skalierungsänderungen verbessern die numerische Stabilität und verhindern Berechnungsfehler.
-- Reskalierung beeinflusst nicht statistische Tests wie t-Tests, F-Tests, Varianz und R-Quadrat.
-- Skalierung zu Standardwerten (Mittelwert 0, Varianz 1) vereinfacht Vergleiche und vermeidet numerische Probleme.
-- Bei Reskalierung von $x_i$ als $\frac{x_i + a}{b}$ bleiben t-Tests, F-Tests, $\sigma^2$ und $R^2$ unverändert, aber die geschätzten Koeffizienten $\hat{\beta}_i$ werden skaliert.
-- Reskalierung von y lässt t-Tests, F-Tests und $R^2$ unverändert, aber die geschätzten Koeffizienten $\hat{\beta}$ und die geschätzte Standardabweichung $\hat{\sigma}$ werden skaliert.
-- Standardisierung von Variablen (Mittelwert 0, Varianz 1) hat Vorteile:
-  - Vergleichbare Skala: Alle Variablen sind auf gleicher Skala, was Vergleiche erleichtert.
-  - Teilkorrelation: Regressionskoeffizienten zwischen -1 und 1 zeigen Stärke und Richtung der Beziehungen.
-  - Numerische Stabilität: Zentrieren vermeidet Probleme durch unterschiedliche Skalen, sorgt für stabile Berechnungen.
-  - Standardinterpretation: Koeffizienten zeigen den Effekt einer Standardabweichung des Prädiktors auf die Antwortvariable.
+- Warum Variablen skalieren?
+  - Um Einheiten zu konvertieren oder extreme Werte (sehr groß/klein) anzupassen
+  - Verbesserung der numerischen Stabilität und Vermeidung von Berechnungsfehlern
+- Auswirkungen der Reskalierung
+  - Statistische Tests wie t-Tests, F-Tests, Varianz ($\sigma^2$) und $R^2$ bleiben unverändert
+    - Gilt sowohl für Reskalierung von $x_i$ als auch von $y$
+  - Reskalierung von $x_i$ als $\frac{x_i + a}{b}$ skaliert  $\hat{\beta}_i$
+  - Reskalierung von $y$ skaliert $\hat{\beta}$ und $\hat{\sigma}$
+- Vorteil der Standardisierung
+  - Alle Variablen haben die gleiche Skala, was Vergleiche erleichtert
+  - Regressionskoeffizienten liegen zwischen -1 und 1 und zeigen die Stärke und Richtung der Beziehungen (Teilkorrelation)
+  - Numerische Stabilität, da zentrierte Variablen Berechnungsprobleme vermeiden
+  - Einfache Interpretation: Koeffizienten geben den Effekt einer Standardabweichung des Prädiktors auf die Antwortvariable an
 
 ```python=
 # Reload the data again
-Figures/savings_sclDF = faraway.datasets.savings.load()
-# Run a regression
-lmod = smf.ols('sr ~ pop15 + pop75 + dpi + ddpi', Figures/savings_sclDF).fit()
+savings_sclDF = faraway.datasets.savings.load()
+lmod = smf.ols('sr ~pop15+pop75+dpi+ddpi',savings_sclDF).fit()
 lmod.sumary()
 ```
 
@@ -833,7 +842,7 @@ lmod.sumary()
 
 ```python=
 # Change the scale
-lmod = smf.ols('sr ~ pop15 + pop75 + I(dpi/1000) + ddpi', Figures/savings_sclDF).fit()
+lmod = smf.ols('sr ~pop15+pop75+ I(dpi/1000) +ddpi', savings_sclDF).fit()
 lmod.sumary()
 ```
 
@@ -847,7 +856,7 @@ lmod.sumary()
 
 ```python=
 # Standardization
-scsav = Figures/savings_sclDF.apply(sp.stats.zscore)
+scsav = savings_sclDF.apply(sp.stats.zscore)
 lmod = smf.ols('sr ~ pop15 + pop75 + dpi + ddpi', scsav).fit()
 lmod.sumary()
 ```
@@ -861,7 +870,8 @@ lmod.sumary()
     
     n=50 p=5 Residual SD=0.857 R-squared=0.34
 
-- Wenn die Prädiktoren vergleichbare Skalen haben, ist es hilfreich, einen Plot der Schätzungen mit Konfidenzintervallen zu erstellen.
+- Wenn Prädiktoren auf ähnlichen Skalen liegen:
+  - Plot der geschätzten Koeffizienten mit Konfidenzintervallen ist hilfreich.
 
 ```python=
 edf = pd.concat([lmod.params, lmod.conf_int()],axis=1).iloc[1:,]
@@ -878,18 +888,28 @@ ax.axvline(0);
 
 ![](Figures/savings_74_0.png)
 
-- Bei binären Prädiktoren ist die Skalierung anders.
-- Ein binärer Prädiktor (0 und 1, gleiche Wahrscheinlichkeit) hat eine Standardabweichung von 0,5.
-- Kontinuierliche Prädiktoren sollten daher mit zwei Standardabweichungen skaliert werden.
-- Alternativ kann man die Kodierung -1/+1 für den binären Prädiktor verwenden, um die Standard-Skalierung für kontinuierliche Prädiktoren zu ermöglichen.
+- Unterschiedliche Skalierung für binäre und kontinuierliche Prädiktoren
+  - Binäre Prädiktoren
+    - Bei Kodierung mit 0 und 1 (gleiche Wahrscheinlichkeit) beträgt die Standardabweichung 0,5.
+    - Alternativ kann eine -1/+1-Kodierung verwendet werden; dann ist die Standardabweichung 1.
+  - Kontinuierliche Prädiktoren
+    - Um die Vergleichbarkeit mit binären Prädiktoren (0/1-Skalierung) herzustellen, sollte man kontinuierliche Variablen durch zwei Standardabweichungen teilen.(*)
+-(*): Vergleichbarkeit von Prädiktoren
+  - Binär (0/1, gleich verteilt)
+    - Sprung von 0 auf 1 ergibt eine Differenz von 1.
+    - Standardabweichung ist 0,5.
+    - Der Sprung von 0 auf 1 entspricht 2 Standardabweichungen.
+  - Kontinuierlich
+    - Teilt man eine kontinuierliche Variable durch 2 Standardabweichungen, entspricht eine Änderung von −1 auf +1 bei der kontinuierlichen Variable dem Unterschied zwischen 0 und 1 beim binären Prädiktor.
+    - So sind die Effekte direkt vergleichbar.
 
 ```python=
 # Create a age column
-Figures/savings_sclDF['age'] = np.where(Figures/savings_sclDF.pop15 > 35, 0, 1)
+savings_sclDF['age'] = np.where(savings_sclDF.pop15 > 35, 0, 1)
 # younger countries are coded as 0 and older countries as 1
-Figures/savings_sclDF['dpis'] = sp.stats.zscore(Figures/savings_sclDF.dpi)/2
-Figures/savings_sclDF['ddpis'] = sp.stats.zscore(Figures/savings_sclDF.ddpi)/2
-smf.ols('sr ~ age + dpis + ddpis', Figures/savings_sclDF).fit().sumary()
+savings_sclDF['dpis'] = sp.stats.zscore(savings_sclDF.dpi)/2
+savings_sclDF['ddpis'] = sp.stats.zscore(savings_sclDF.ddpi)/2
+smf.ols('sr ~ age + dpis + ddpis', savings_sclDF).fit().sumary()
 ```
 
                coefs stderr tvalues pvalues
@@ -899,13 +919,12 @@ smf.ols('sr ~ age + dpis + ddpis', Figures/savings_sclDF).fit().sumary()
     ddpis      2.443  1.097    2.23  0.0309
     n=50 p=4 Residual SD=3.800 R-squared=0.32
 
-- Interpretation der Koeffizienten ist einfacher:
-  - Ältere Länder haben eine 5,28% höhere Sparquote als jüngere (Unterschied von zwei Standardabweichungen).
-  - Zwei Standardabweichungen in ddpi entsprechen einer Einheit auf der neuen Skala.
-  - Länder mit hoher Wachstumsrate haben typischerweise eine 2,47% höhere Sparquote als solche mit niedriger Wachstumsrate.
-  - ddpi ist eine kontinuierliche Variable, diese Interpretation dient dem Verständnis.
-
-# 7. Transformation
+- Interpretation der Koeffizienten:
+  - Ältere Länder (age = 1) haben eine um 5,28 % höhere Sparquote als jüngere (age = 0).
+  - Ein Anstieg von ddpi um zwei Standardabweichungen (also eine Einheit auf der Skala) erhöht die Sparquote um 2,44 %.
+  - Ein Anstieg von dpi um zwei Standardabweichungen senkt die Sparquote um 1,55 % (nicht signifikant).
+  
+# Transformation
 
 - Log-Transformation der Antwortvariable:
   
@@ -972,7 +991,7 @@ ax.vlines([rlam[0], rlam[-1]], ymin=min(llk), ymax=cicut, linestyle='dashed');
 - Bereich basierte auf vorherigen Tests.
 - Konfidenzintervall für $\lambda$: ungefähr 0.6 bis 1.4, daher keine starke Notwendigkeit zur Transformation.
 
-# 8. Knickpunkt-Regression
+# Knickpunkt-Regression
 
 - Manchmal brauchen Daten verschiedene lineare Regressionsmodelle.
 - Beispiel: Spardaten zeigen zwei Gruppen.
@@ -1012,18 +1031,11 @@ plt.plot([35, 48], [lmod2.params.iat[0] + lmod2.params.iat[1] * 35,
         0 & \text{ansonsten} 
       \end{cases}$
 
-- Punkt ‘c’ teilt die Daten in zwei Gruppen und erzeugt die Variablen $B_l$ und $B_r$.
-
-- Diese Variablen bilden eine erste Ordnung Spline-Basis mit einem Knoten bei ‘c’, was eine bessere Anpassung ermöglicht.
-
-- Diese Variablen werden oft als Hockeyschläger-Funktionen bezeichnet.
-
-- Das Modell hat die Form $y=\beta_0+\beta_1B_l(x)+\beta_2B_r(x)+\varepsilon$ und wird durch reguläre Regressionsmethoden angepasst.
-
-- Die beiden Segmente des Modells treffen sich bei Punkt ‘c’, was Kontinuität gewährleistet.
-
+- $B_l$ und $B_r$ werden oft als Hockeyschläger-Funktionen bezeichnet.
+- $B_l$ und $B_r$ bilden eine erste Ordnung Spline-Basis mit einem Knoten bei ‘c’, was eine bessere Anpassung ermöglicht.
+- Das Modell $y=\beta_0+\beta_1B_l(x)+\beta_2B_r(x)+\varepsilon$ wird durch reguläre Regressionsmethoden angepasst.
+- Die beiden Segmente treffen sich bei Punkt ‘c’, was Kontinuität gewährleistet.
 - Im Gegensatz zum vorherigen Ansatz verwendet dieses Modell nur drei Parameter, indem es die Glätte bei Punkt ‘c’ sicherstellt.
-
 - Der Achsenabschnitt dieses Modells ist der Wert des Ergebnisses, wo die beiden Teile sich treffen.
 
 ```python=
@@ -1054,5 +1066,3 @@ plt.axvline(35, linestyle='dashed');
   - Bei hohen ‘pop15’-Werten ändert sich die Steigung durch Glättung.
   - Aufgrund der Unterschiede zwischen den Gruppen und wenigen Ländern in der Mitte ist Glättung vielleicht nicht nötig.
 - Flexibleres Modell durch Hinzufügen weiterer Knickpunkte (Knotenpunkte).
-- Ansatz: Segmentierte Regression oder Knickpunkt-Regression.
-  - Knotenpunkte können sich ändern, um komplexe Datenmuster besser anzupassen.
